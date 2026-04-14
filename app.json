@@ -25,7 +25,14 @@
     },
     "plugins": [
       "expo-secure-store",
-      "expo-image-picker"
+      "expo-image-picker",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Permitir acceso a fotos para cambiar perfil",
+          "cameraPermission": "Permitir usar la cámara para foto de perfil"
+        }
+      ]
     ]
   }
 }
