@@ -36,7 +36,26 @@ import DetalleForoScreen from '../screens/foro/DetalleForoScreen';
 import CrearTemaScreen from '../screens/foro/CrearTemaScreen';
 import MisTemasScreen from '../screens/foro/MisTemasScreen';
 
+const RootStack = createStackNavigator();
 const Stack = createStackNavigator();
+
+
+const RootNavigator = () => {
+    const { isLoggedIn } = useAuth();
+
+    return (
+        <RootStack.Navigator screenOptions={{ headerShown: false }}>
+
+      
+            <RootStack.Screen name="Main" component={MainStack} />
+
+            {!isLoggedIn && (
+                <RootStack.Screen name="Auth" component={AuthStack} />
+            )}
+
+        </RootStack.Navigator>
+    );
+};
 
 const HEADER = {
     headerStyle: { backgroundColor: COLORS.primary },
@@ -45,6 +64,8 @@ const HEADER = {
 };
 
 const AuthStack = () => (
+
+
     <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Registro" component={RegistroScreen} />
@@ -83,6 +104,7 @@ const MainStack = () => (
     </Stack.Navigator>
 );
 
+
 export default function AppNavigator() {
     const { isLoggedIn, isLoading } = useAuth();
 
@@ -96,7 +118,7 @@ export default function AppNavigator() {
 
     return (
         <NavigationContainer>
-            {isLoggedIn ? <MainStack /> : <AuthStack />}
+            <RootNavigator />
         </NavigationContainer>
     );
 }
