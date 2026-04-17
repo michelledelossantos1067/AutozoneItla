@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../../services/apiClient'
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, FlatList, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, FlatList, Modal, Image } from 'react-native';
 import { COLORS, FONTS } from '../../core/theme';
-
 export default function DetallesNoticias({ route }) {
 
   const { id } = route.params;

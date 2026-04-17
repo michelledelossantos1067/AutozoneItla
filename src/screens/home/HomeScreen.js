@@ -78,7 +78,7 @@ export default function HomeScreen({ navigation }) {
         <Text style={s.sub}>Catalogo</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate('ForoPublico')} style={s.TouchableOpacity}>
+      <TouchableOpacity onPress={() => navigation.navigate('Foro')} style={s.TouchableOpacity}>
         <Text style={s.sub}>Foro</Text>
       </TouchableOpacity>
 
