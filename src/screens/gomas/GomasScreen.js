@@ -17,11 +17,11 @@ export default function GomasScreen({ route }) {
     return <Text style={s.error}>Error: No se recibió el ID del vehículo</Text>;
   }
 
-  // 📌 Endpoint: GET /gomas?vehiculo_id=
+  // 📌 GET /gomas?vehiculo_id=
   const fetchGomas = async () => {
     try {
       const { data } = await apiClient.get('/gomas', { params: { vehiculo_id } });
-      setGomas(data);
+      setGomas(data.data.gomas); // 👀 listado está en data.data.gomas
     } catch (err) {
       console.error('Error cargando gomas:', err.response?.data || err.message);
     }
@@ -29,10 +29,11 @@ export default function GomasScreen({ route }) {
 
   useEffect(() => { fetchGomas(); }, []);
 
-  // 📌 Endpoint: POST /gomas/actualizar
+  // 📌 POST /gomas/actualizar
   const actualizarEstado = async () => {
     try {
-      await apiClient.post('/gomas/actualizar', { goma_id: selectedGoma.id, estado });
+      const datax = { goma_id: selectedGoma.id, estado };
+      await apiClient.post('/gomas/actualizar', { datax: JSON.stringify(datax) });
       setModalVisible(false);
       fetchGomas();
     } catch (err) {
@@ -40,10 +41,11 @@ export default function GomasScreen({ route }) {
     }
   };
 
-  // 📌 Endpoint: POST /gomas/pinchazos
+  // 📌 POST /gomas/pinchazos
   const registrarPinchazo = async () => {
     try {
-      await apiClient.post('/gomas/pinchazos', { goma_id: selectedGoma.id, descripcion, fecha });
+      const datax = { goma_id: selectedGoma.id, descripcion, fecha };
+      await apiClient.post('/gomas/pinchazos', { datax: JSON.stringify(datax) });
       setModalVisible(false);
       fetchGomas();
     } catch (err) {
@@ -53,10 +55,10 @@ export default function GomasScreen({ route }) {
 
   const getColor = (estado) => {
     switch (estado) {
-      case 'Buena': return COLORS.success;
-      case 'Regular': return COLORS.warning;
-      case 'Mala': return COLORS.danger;
-      case 'Reemplazada': return COLORS.textMuted;
+      case 'buena': return COLORS.success;
+      case 'regular': return COLORS.warning;
+      case 'mala': return COLORS.danger;
+      case 'reemplazada': return COLORS.textMuted;
       default: return COLORS.border;
     }
   };
@@ -70,6 +72,7 @@ export default function GomasScreen({ route }) {
           onPress={() => { setSelectedGoma(goma); setModalVisible(true); }}
         >
           <Text style={s.gomaText}>{goma.posicion} ({goma.estado})</Text>
+          <Text style={s.gomaSub}>Pinchazos: {goma.totalPinchazos}</Text>
         </TouchableOpacity>
       ))}
 
@@ -101,6 +104,7 @@ const s = StyleSheet.create({
   error: { textAlign: 'center', marginTop: 20, color: COLORS.danger },
   goma: { padding: 15, borderRadius: 6, marginBottom: 10 },
   gomaText: { color: COLORS.textLight, fontWeight: '600' },
+  gomaSub: { color: COLORS.textMuted, fontSize: FONTS.sizes.sm },
   modal: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: COLORS.background },
   modalTitle: { fontSize: FONTS.sizes.md, fontWeight: '700', marginBottom: 10 },
   input: { borderWidth: 1, borderColor: COLORS.border, padding: 10, borderRadius: 6, marginBottom: 10 },

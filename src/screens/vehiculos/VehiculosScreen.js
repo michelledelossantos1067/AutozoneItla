@@ -1,54 +1,56 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, TextInput, FlatList, TouchableOpacity, Text, StyleSheet, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import apiClient from '../../services/apiClient';
 import { COLORS, FONTS } from '../../core/theme';
 
 export default function VehiculosScreen({ navigation }) {
   const [vehiculos, setVehiculos] = useState([]);
   const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
-  const timeoutRef = useRef(null);
 
-  const fetchVehiculos = async (marca = '', modelo = '', pageNum = 1) => {
+  const fetchVehiculos = async (pageNum = 1) => {
     try {
       const { data } = await apiClient.get('/vehiculos', {
-        params: { marca, modelo, page: pageNum, limit: 10 },
+        params: { page: pageNum, limit: 20 }
       });
-      setVehiculos(pageNum === 1 ? data : [...vehiculos, ...data]);
+
+      // 👀 listado está en data.data
+      setVehiculos(pageNum === 1 ? data.data : [...vehiculos, ...data.data]);
+      setPage(pageNum);
     } catch (err) {
-      console.error('Error cargando vehículos:', err);
+      console.error('Error cargando vehículos:', err.response?.data || err.message);
     }
   };
 
   useEffect(() => { fetchVehiculos(); }, []);
 
-  const handleSearch = (text) => {
-    setSearch(text);
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => {
-      fetchVehiculos(text, text, 1);
-      setPage(1);
-    }, 500);
-  };
+  const renderItem = ({ item }) => (
+    <TouchableOpacity
+      style={s.card}
+      onPress={() => navigation.navigate('DetalleVehiculo', { id: item.id })}
+    >
+      <Image source={{ uri: item.foto_url }} style={s.image} />
+      <View style={s.info}>
+        <Text style={s.title}>{item.marca} {item.modelo}</Text>
+        <Text style={s.sub}>Placa: {item.placa}</Text>
+        <Text style={s.sub}>Chasis: {item.chasis}</Text>
+        <Text style={s.sub}>Año: {item.anio}</Text>
+        <Text style={s.sub}>Ruedas: {item.cantidad_ruedas}</Text>
+      </View>
+    </TouchableOpacity>
+  );
 
   return (
     <View style={s.screen}>
-      <TextInput placeholder="Buscar por marca/modelo" value={search} onChangeText={handleSearch} style={s.input} />
       <FlatList
         data={vehiculos}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <TouchableOpacity style={s.card} onPress={() => navigation.navigate('DetalleVehiculo', { id: item.id })}>
-            <Image source={{ uri: item.fotoUrl }} style={s.image} />
-            <Text style={s.cardTitle}>{item.marca} {item.modelo} ({item.anio})</Text>
-            <Text style={s.cardSub}>Placa: {item.placa}</Text>
-          </TouchableOpacity>
-        )}
-        onEndReached={() => { const nextPage = page + 1; fetchVehiculos(search, search, nextPage); setPage(nextPage); }}
-        ListEmptyComponent={<Text style={s.empty}>🚗 No tienes vehículos registrados</Text>}
+        renderItem={renderItem}
+        onEndReached={() => fetchVehiculos(page + 1)}
+        onEndReachedThreshold={0.5}
       />
+
       <TouchableOpacity style={s.addBtn} onPress={() => navigation.navigate('FormVehiculo')}>
-        <Text style={s.addText}>+</Text>
+        <Text style={s.addText}>+ Agregar Vehículo</Text>
       </TouchableOpacity>
     </View>
   );
@@ -56,12 +58,11 @@ export default function VehiculosScreen({ navigation }) {
 
 const s = StyleSheet.create({
   screen: { flex: 1, backgroundColor: COLORS.background, padding: 10 },
-  input: { borderWidth: 1, borderColor: COLORS.border, padding: 10, borderRadius: 6, marginBottom: 10 },
-  card: { borderWidth: 1, borderColor: COLORS.border, padding: 10, marginBottom: 10, borderRadius: 6 },
-  image: { width: '100%', height: 120, marginBottom: 8, borderRadius: 6 },
-  cardTitle: { fontSize: FONTS.sizes.md, fontWeight: '700', color: COLORS.textPrimary },
-  cardSub: { fontSize: FONTS.sizes.sm, color: COLORS.textMuted },
-  empty: { textAlign: 'center', marginTop: 20, color: COLORS.textMuted },
-  addBtn: { position: 'absolute', bottom: 20, right: 20, backgroundColor: COLORS.primary, padding: 15, borderRadius: 30 },
-  addText: { color: COLORS.textLight, fontSize: 20, fontWeight: '700' },
+  card: { flexDirection: 'row', backgroundColor: COLORS.card, marginBottom: 10, borderRadius: 8, overflow: 'hidden' },
+  image: { width: 100, height: 100 },
+  info: { flex: 1, padding: 10 },
+  title: { fontSize: FONTS.sizes.md, fontWeight: '700', color: COLORS.textPrimary },
+  sub: { fontSize: FONTS.sizes.sm, color: COLORS.textMuted },
+  addBtn: { backgroundColor: COLORS.primary, padding: 15, borderRadius: 6, marginTop: 10 },
+  addText: { color: COLORS.textLight, textAlign: 'center', fontWeight: '700' },
 });

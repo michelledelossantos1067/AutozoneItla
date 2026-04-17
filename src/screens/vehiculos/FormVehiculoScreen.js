@@ -14,52 +14,58 @@ export default function FormVehiculoScreen({ navigation, route }) {
   const [ruedas, setRuedas] = useState(editing?.cantidadRuedas || 4);
   const [foto, setFoto] = useState(editing?.fotoUrl || null);
 
-  const handleSave = async () => {
-    if (!placa || !marca || !modelo) {
-      alert('Placa, marca y modelo son requeridos');
-      return;
+ const handleSave = async () => {
+  if (!placa.trim() || !chasis.trim() || !marca.trim() || !modelo.trim() || !anio.trim()) {
+    alert('Placa, chasis, marca, modelo y año son requeridos');
+    return;
+  }
+
+  try {
+    const datax = {
+      placa: placa.trim(),
+      chasis: chasis.trim(),
+      marca: marca.trim(),
+      modelo: modelo.trim(),
+      anio: Number(anio),
+      cantidadRuedas: Number(ruedas),
+      ...(editing ? { id: editing.id } : {}) // incluir id si es edición
+    };
+
+    const formData = new FormData();
+    formData.append('datax', JSON.stringify(datax));
+
+    if (foto) {
+      const extension = foto.split('.').pop();
+      const mimeType = extension === 'png' ? 'image/png'
+                      : extension === 'webp' ? 'image/webp'
+                      : extension === 'heic' ? 'image/heic'
+                      : 'image/jpeg'; // fallback
+
+      formData.append('foto', {
+        uri: foto,
+        type: mimeType,
+        name: `vehiculo.${extension || 'jpg'}`,
+      });
     }
 
-    try {
-      const formData = new FormData();
-      formData.append('placa', placa);
-      formData.append('chasis', chasis);
-      formData.append('marca', marca);
-      formData.append('modelo', modelo);
-      formData.append('anio', anio);              // nombre correcto
-      formData.append('cantidadRuedas', ruedas); // nombre correcto
+    console.log([...formData]); // 👀 depuración
 
-      if (foto) {
-        // Detectar tipo de archivo dinámicamente
-        const extension = foto.split('.').pop();
-        const mimeType = extension === 'png' ? 'image/png'
-                        : extension === 'webp' ? 'image/webp'
-                        : extension === 'heic' ? 'image/heic'
-                        : 'image/jpeg'; // fallback
-
-        formData.append('foto', {
-          uri: foto,
-          type: mimeType,
-          name: `vehiculo.${extension || 'jpg'}`,
-        });
-      }
-
-      if (editing) {
-        await apiClient.post('/vehiculos/editar', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-      } else {
-        await apiClient.post('/vehiculos', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-      }
-
-      navigation.goBack();
-    } catch (err) {
-      console.error('Error guardando vehículo:', err.response?.data || err.message);
-      alert(err.response?.data?.message || 'Error al guardar vehículo');
+    if (editing) {
+      await apiClient.post('/vehiculos/editar', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+    } else {
+      await apiClient.post('/vehiculos', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
     }
-  };
+
+    navigation.goBack();
+  } catch (err) {
+    console.error('Error guardando vehículo:', err.response?.data || err.message);
+    alert(err.response?.data?.message || 'Error al guardar vehículo');
+  }
+};
 
   const handlePickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
