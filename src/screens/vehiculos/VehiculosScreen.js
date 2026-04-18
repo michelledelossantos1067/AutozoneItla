@@ -13,7 +13,7 @@ export default function VehiculosScreen({ navigation }) {
         params: { page: pageNum, limit: 20 }
       });
 
-      // 👀 listado está en data.data
+      //  listado está en data.data
       setVehiculos(pageNum === 1 ? data.data : [...vehiculos, ...data.data]);
       setPage(pageNum);
     } catch (err) {

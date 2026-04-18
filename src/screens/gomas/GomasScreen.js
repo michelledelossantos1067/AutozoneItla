@@ -13,7 +13,7 @@ export default function GomasScreen({ route }) {
   const [modalVisible, setModalVisible] = useState(false);
 
   if (!vehiculo_id) {
-    console.error("❌ No se recibió el parámetro 'vehiculo_id' en GomasScreen");
+    console.error(" No se recibió el parámetro 'vehiculo_id' en GomasScreen");
     return <Text style={s.error}>Error: No se recibió el ID del vehículo</Text>;
   }
 

@@ -8,14 +8,14 @@ export default function DetalleVehiculoScreen({ route, navigation }) {
   const [vehiculo, setVehiculo] = useState(null);
 
   if (!id) {
-    console.error("❌ No se recibió el parámetro 'id' en DetalleVehiculoScreen");
+    console.error(" No se recibió el parámetro 'id' en DetalleVehiculoScreen");
     return <Text style={s.error}>Error: No se recibió el ID del vehículo</Text>;
   }
 
   const fetchDetalle = async () => {
     try {
       const { data } = await apiClient.get('/vehiculos/detalle', { params: { id } });
-      setVehiculo(data.data); // 👀 el detalle está en data.data
+      setVehiculo(data.data); //  el detalle está en data.data
     } catch (err) {
       console.error('Error cargando detalle del vehículo:', err.response?.data || err.message);
     }

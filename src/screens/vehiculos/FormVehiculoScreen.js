@@ -48,7 +48,7 @@ export default function FormVehiculoScreen({ navigation, route }) {
       });
     }
 
-    console.log([...formData]); // 👀 depuración
+    console.log([...formData]); //  depuración
 
     if (editing) {
       await apiClient.post('/vehiculos/editar', formData, {
