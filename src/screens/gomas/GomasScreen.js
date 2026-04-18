@@ -20,8 +20,10 @@ export default function GomasScreen({ route }) {
   // 📌 GET /gomas?vehiculo_id=
   const fetchGomas = async () => {
     try {
+      console.log("➡ Consultando gomas con vehiculo_id:", vehiculo_id);
       const { data } = await apiClient.get('/gomas', { params: { vehiculo_id } });
-      setGomas(data.data.gomas); // 👀 listado está en data.data.gomas
+      console.log("Respuesta gomas:", data);
+      setGomas(data.data.gomas);
     } catch (err) {
       console.error('Error cargando gomas:', err.response?.data || err.message);
     }
@@ -31,25 +33,54 @@ export default function GomasScreen({ route }) {
 
   // 📌 POST /gomas/actualizar
   const actualizarEstado = async () => {
+    if (!selectedGoma?.id || !estado.trim()) {
+      alert("Debes seleccionar una goma y un estado válido");
+      return;
+    }
+
     try {
-      const datax = { goma_id: selectedGoma.id, estado };
-      await apiClient.post('/gomas/actualizar', { datax: JSON.stringify(datax) });
+      const formData = new FormData();
+      formData.append('datax', JSON.stringify({
+        goma_id: selectedGoma.id,
+        estado: estado.trim()
+      }));
+
+      await apiClient.post('/gomas/actualizar', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
       setModalVisible(false);
       fetchGomas();
     } catch (err) {
       console.error('Error actualizando estado de goma:', err.response?.data || err.message);
+      alert(err.response?.data?.message || 'Error al actualizar estado');
     }
   };
 
   // 📌 POST /gomas/pinchazos
   const registrarPinchazo = async () => {
+    if (!selectedGoma?.id || !descripcion.trim() || !fecha.trim()) {
+      alert("Debes llenar descripción y fecha");
+      return;
+    }
+
     try {
-      const datax = { goma_id: selectedGoma.id, descripcion, fecha };
-      await apiClient.post('/gomas/pinchazos', { datax: JSON.stringify(datax) });
+      const formData = new FormData();
+      formData.append('datax', JSON.stringify({
+        goma_id: selectedGoma.id,
+        descripcion: descripcion.trim(),
+        fecha: fecha.trim()
+      }));
+
+      await apiClient.post('/gomas/pinchazos', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
       setModalVisible(false);
       fetchGomas();
     } catch (err) {
       console.error('Error registrando pinchazo:', err.response?.data || err.message);
+      alert(err.response?.data?.message || 'Error al registrar pinchazo');
     }
   };
 

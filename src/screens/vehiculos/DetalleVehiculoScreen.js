@@ -8,7 +8,7 @@ export default function DetalleVehiculoScreen({ route, navigation }) {
   const [vehiculo, setVehiculo] = useState(null);
 
   if (!id) {
-    console.error(" No se recibió el parámetro 'id' en DetalleVehiculoScreen");
+    console.error("❌ No se recibió el parámetro 'id' en DetalleVehiculoScreen");
     return <Text style={s.error}>Error: No se recibió el ID del vehículo</Text>;
   }
 
@@ -49,7 +49,56 @@ export default function DetalleVehiculoScreen({ route, navigation }) {
         </Text>
       </View>
 
-      <TouchableOpacity style={s.editBtn} onPress={() => navigation.navigate('FormVehiculo', { vehiculo })}>
+      {/* 🔗 Accesos rápidos con vehiculo_id */}
+      <View style={s.quickAccess}>
+        <TouchableOpacity 
+          style={s.btn} 
+          onPress={() => {
+            console.log("➡ Navegando a Mantenimientos con vehiculo_id:", vehiculo.id);
+            navigation.navigate('Mantenimientos', { vehiculo_id: vehiculo.id });
+          }}
+        >
+          <Text style={s.btnText}>Mantenimientos</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={s.btn} 
+          onPress={() => {
+            console.log("➡ Navegando a Combustible con vehiculo_id:", vehiculo.id);
+            navigation.navigate('Combustible', { vehiculo_id: vehiculo.id });
+          }}
+        >
+          <Text style={s.btnText}>Combustible</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={s.btn} 
+          onPress={() => {
+            console.log("➡ Navegando a Gomas con vehiculo_id:", vehiculo.id);
+            navigation.navigate('Gomas', { vehiculo_id: vehiculo.id });
+          }}
+        >
+          <Text style={s.btnText}>Gomas</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={s.btn} 
+          onPress={() => {
+            console.log("➡ Navegando a Gastos/Ingresos con vehiculo_id:", vehiculo.id);
+            navigation.navigate('Gastos', { vehiculo_id: vehiculo.id });
+          }}
+        >
+          <Text style={s.btnText}>Gastos/Ingresos</Text>
+        </TouchableOpacity>
+      </View>
+
+      <TouchableOpacity 
+        style={s.editBtn} 
+        onPress={() => {
+          console.log("➡ Navegando a FormVehiculo con vehiculo:", vehiculo);
+          navigation.navigate('FormVehiculo', { vehiculo });
+        }}
+      >
         <Text style={s.editText}>Editar Vehículo</Text>
       </TouchableOpacity>
     </ScrollView>
@@ -66,6 +115,9 @@ const s = StyleSheet.create({
   section: { marginTop: 20 },
   sectionTitle: { fontSize: FONTS.sizes.md, fontWeight: '600', marginBottom: 10 },
   card: { fontSize: FONTS.sizes.sm, marginBottom: 6 },
+  quickAccess: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 20 },
+  btn: { backgroundColor: COLORS.secondary, padding: 10, borderRadius: 6, margin: 5 },
+  btnText: { color: COLORS.textLight, fontWeight: '600' },
   editBtn: { backgroundColor: COLORS.primary, padding: 15, borderRadius: 6, marginTop: 20 },
   editText: { color: COLORS.textLight, textAlign: 'center', fontWeight: '700' },
 });
