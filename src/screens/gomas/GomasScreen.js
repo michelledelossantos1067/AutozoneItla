@@ -17,7 +17,7 @@ export default function GomasScreen({ route }) {
     return <Text style={s.error}>Error: No se recibió el ID del vehículo</Text>;
   }
 
-  // 📌 GET /gomas?vehiculo_id=
+  //  GET /gomas?vehiculo_id=
   const fetchGomas = async () => {
     try {
       console.log("➡ Consultando gomas con vehiculo_id:", vehiculo_id);
@@ -31,7 +31,7 @@ export default function GomasScreen({ route }) {
 
   useEffect(() => { fetchGomas(); }, []);
 
-  // 📌 POST /gomas/actualizar
+  //  POST /gomas/actualizar
   const actualizarEstado = async () => {
     if (!selectedGoma?.id || !estado.trim()) {
       alert("Debes seleccionar una goma y un estado válido");
@@ -57,7 +57,7 @@ export default function GomasScreen({ route }) {
     }
   };
 
-  // 📌 POST /gomas/pinchazos
+  //  POST /gomas/pinchazos
   const registrarPinchazo = async () => {
     if (!selectedGoma?.id || !descripcion.trim() || !fecha.trim()) {
       alert("Debes llenar descripción y fecha");

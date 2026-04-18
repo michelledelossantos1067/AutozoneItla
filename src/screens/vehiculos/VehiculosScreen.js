@@ -9,7 +9,7 @@ export default function VehiculosScreen({ navigation }) {
 
   const fetchVehiculos = async (pageNum = 1) => {
     try {
-      const { data } = await apiClient.get('/vehiculos', {
+      const { data } = await apiClient.get('/vehiculos', {  
         params: { page: pageNum, limit: 20 }
       });
 
