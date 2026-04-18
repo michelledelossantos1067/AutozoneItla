@@ -47,13 +47,18 @@ export default function LoginScreen({ navigation }) {
 
       console.log('RESPUESTA LOGIN:', response.data);
 
-      const token = response.data?.data?.token;
-      const refreshToken = response.data?.data?.refreshToken;
-      const usuario = response.data?.data;
+      const payload = response.data?.data ?? response.data ?? {};
+      const token = payload?.token ?? payload?.accessToken;
+      const refreshToken = payload?.refreshToken ?? payload?.refresh_token ?? payload?.refreshtoken;
+      const usuario = payload;
 
       if (!token) {
         alert('Error: no se recibió token');
         return;
+      }
+
+      if (!refreshToken) {
+        console.warn('Login completado sin refresh token');
       }
 
       await login({

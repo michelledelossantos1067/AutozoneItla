@@ -1,9 +1,9 @@
 export const fromJson = data => ({
   id: data?.id ?? null,
-  placa: data?.placa ?? '',
-  chasis: data?.chasis ?? '',
-  marca: data?.marca ?? '',
-  modelo: data?.modelo ?? '',
+  placa: String(data?.placa ?? ''),
+  chasis: String(data?.chasis ?? ''),
+  marca: String(data?.marca ?? ''),
+  modelo: String(data?.modelo ?? ''),
   anio: data?.anio ?? null,
   cantidadRuedas: data?.cantidadRuedas ?? data?.cantidad_ruedas ?? 4,
   fotoUrl: data?.fotoUrl ?? data?.foto_url ?? null,

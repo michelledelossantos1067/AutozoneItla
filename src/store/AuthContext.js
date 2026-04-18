@@ -75,7 +75,11 @@ export const AuthProvider = ({ children }) => {
     const login = async ({ token, refreshToken, usuario }) => {
         const parsed = usuarioFromJson(usuario);
         await SecureStore.setItemAsync('token', token);
-        await SecureStore.setItemAsync('refreshToken', refreshToken);
+        if (refreshToken) {
+            await SecureStore.setItemAsync('refreshToken', refreshToken);
+        } else {
+            await SecureStore.deleteItemAsync('refreshToken');
+        }
         await SecureStore.setItemAsync('usuario', JSON.stringify(parsed));
         dispatch({ type: AUTH_ACTIONS.LOGIN, payload: { token, refreshToken, usuario: parsed } });
     };
