@@ -1,11 +1,11 @@
 export const fromJson = data => ({
   id: data?.id ?? null,
-  nombre: data?.nombre ?? '',
-  apellido: data?.apellido ?? '',
-  correo: data?.correo ?? '',
+  nombre: String(data?.nombre ?? ''),
+  apellido: String(data?.apellido ?? ''),
+  correo: String(data?.correo ?? ''),
   fotoUrl: data?.fotoUrl ?? data?.foto_url ?? null,
-  rol: data?.rol ?? '',
-  grupo: data?.grupo ?? '',
+  rol: String(data?.rol ?? ''),
+  grupo: String(data?.grupo ?? ''),
   token: data?.token ?? null,
   refreshToken: data?.refreshToken ?? data?.refresh_token ?? null,
 });

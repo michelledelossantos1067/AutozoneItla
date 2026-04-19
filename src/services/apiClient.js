@@ -47,12 +47,21 @@ apiClient.interceptors.response.use(
                 if (!refreshToken) throw new Error('No refresh token');
 
                 const { data } = await axios.post(`${BASE_URL}/auth/refresh`, { refreshToken });
+                const payload = data?.data ?? data ?? {};
+                const newToken = payload?.token ?? payload?.accessToken;
+                const newRefreshToken = payload?.refreshToken ?? payload?.refresh_token ?? payload?.refreshtoken ?? refreshToken;
 
-                await SecureStore.setItemAsync('token', data.token);
-                await SecureStore.setItemAsync('refreshToken', data.refreshToken ?? refreshToken);
+                if (!newToken) {
+                    throw new Error('Refresh response no incluyó token');
+                }
 
-                processQueue(null, data.token);
-                orig.headers.Authorization = `Bearer ${data.token}`;
+                await SecureStore.setItemAsync('token', newToken);
+                if (newRefreshToken) {
+                    await SecureStore.setItemAsync('refreshToken', newRefreshToken);
+                }
+
+                processQueue(null, newToken);
+                orig.headers.Authorization = `Bearer ${newToken}`;
                 return apiClient(orig);
             } catch (err) {
                 processQueue(err, null);
