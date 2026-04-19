@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator, TextInput } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import apiClient from '../../services/apiClient';
 import { COLORS, FONTS, SPACING } from '../../core/theme';
 import { formatDate } from '../../utils/format';
@@ -15,6 +16,7 @@ export default function DetalleForoScreen({ route, navigation }) {
   const fetchTema = async () => {
     try {
       const { data } = await apiClient.get('/foro/detalle', { params: { id } });
+      console.log('Tema cargado:', data.data);
       setTema(fromJson(data.data));
     } catch (err) {
       console.error('Error cargando tema:', err.response?.data || err.message);
@@ -25,16 +27,28 @@ export default function DetalleForoScreen({ route, navigation }) {
 
   useEffect(() => { fetchTema(); }, [id]);
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchTema();
+    }, [id])
+  );
+
   const handleReply = async () => {
     if (!replyText.trim()) return;
 
     setReplying(true);
     try {
-      const formData = new FormData();
-      formData.append('datax', JSON.stringify({ tema_id: id, contenido: replyText.trim() }));
-      await apiClient.post('/foro/responder', formData);
+      const params = new URLSearchParams();
+      params.append('datax', JSON.stringify({ tema_id: id, contenido: replyText.trim() }));
+      const response = await apiClient.post('/foro/responder', params, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      });
+      console.log('Respuesta enviada:', response.data);
       setReplyText('');
-      fetchTema(); // Refresh to show new reply
+      // Wait a moment for the backend to process, then refresh
+      setTimeout(() => {
+        fetchTema();
+      }, 1000);
     } catch (err) {
       console.error('Error respondiendo:', err.response?.data || err.message);
       alert('Error al enviar respuesta');

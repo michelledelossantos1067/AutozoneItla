@@ -6,7 +6,7 @@ import { fromJson } from '../../models/foroTema';
 import { COLORS, FONTS, SPACING } from '../../core/theme';
 import { formatDate } from '../../utils/format';
 
-export default function ForoScreen({ navigation }) {
+export default function ForoScreen({ navigation, route }) {
   const { isLoggedIn } = useAuth();
   const [temas, setTemas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,11 +15,13 @@ export default function ForoScreen({ navigation }) {
 
   const fetchTemas = async (pageNum = 1) => {
     try {
+      console.log('Recargando temas...', pageNum);
       const { data } = await apiClient.get('/foro/temas', {
         params: { page: pageNum, limit: 20 }
       });
 
       const newTemas = (data.data || []).map(fromJson);
+      console.log('Temas cargados:', newTemas.length, newTemas.map(t => ({id: t.id, titulo: t.titulo, respuestas: t.cantidadRespuestas})));
       setTemas(pageNum === 1 ? newTemas : [...temas, ...newTemas]);
       setPage(pageNum);
       setHasMore(newTemas.length === 20);
@@ -37,6 +39,19 @@ export default function ForoScreen({ navigation }) {
       setLoading(false);
     }
   }, [isLoggedIn]);
+
+  // Refresh list every time this screen comes into focus
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      console.log('ForoScreen enfocado - recargando temas');
+      if (isLoggedIn) {
+        setPage(1);
+        fetchTemas(1);
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation, isLoggedIn]);
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
