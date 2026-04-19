@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../../services/apiClient'
-import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, Image } from 'react-native';
 import { COLORS, FONTS } from '../../core/theme';
 
 export default function DetalleMantenimientoScreen({ route }) {
@@ -68,7 +68,7 @@ export default function DetalleMantenimientoScreen({ route }) {
     obtenerDetalle();
   }, []);
 
-  if (!noticia) return <Text>Cargando...</Text>;
+  if (!mantenimiento) return <Text>Cargando...</Text>;
 
   return (
     <View style={s.screen}>
@@ -84,17 +84,44 @@ export default function DetalleMantenimientoScreen({ route }) {
         gap: 15
       }}>
 
-
-        <Image source={{ uri: mantenimiento.fotos }} style={{ width: '100%', height: 200, alignSelf: 'center', marginTop: 10 }} resizeMode='contain'></Image>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={{ marginTop: 10 }}
+        >
+          {mantenimiento.fotos && mantenimiento.fotos.length > 0 ? (
+            mantenimiento.fotos.map((foto, index) => (
+              <Image key={index} source={{ uri: foto }}
+                style={{
+                  width: 250,
+                  height: 200,
+                  marginRight: 10,
+                  borderRadius: 10
+                }}
+                resizeMode="cover"
+              />
+            )) ) : (
+            <View style={{
+              width: 250,
+              height: 200,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: '#eee',
+              borderRadius: 10
+            }}>
+              <Text>Sin imágenes</Text>
+            </View>
+          )}
+        </ScrollView>
 
         <Text style={{ fontWeight: 'bold', fontSize: 20 }}>{mantenimiento.tipo}</Text>
 
-        <Text><Text style={{ fontWeight: 'bold' }}>Fecha: </Text>{mantenimiento.costo}</Text>
-        <Text><Text style={{ fontWeight: 'bold' }}>Fuente: </Text>{mantenimiento.piezas}</Text>
+        <Text><Text style={{ fontWeight: 'bold' }}>Costos: </Text>{mantenimiento.costo}</Text>
 
-        <Text>{mantenimiento.fecha}</Text>
+        <Text><Text style={{ fontWeight: 'bold' }}>Piezas: </Text>{mantenimiento.piezas}</Text>
 
-        <Text><Text style={{ fontWeight: 'bold' }}>Link: </Text>{mantenimiento.fotos}</Text>
+        <Text><Text style={{ fontWeight: 'bold' }}>Fecha: </Text>{mantenimiento.fecha}</Text>
+
 
       </View>
     </View >

@@ -18,20 +18,24 @@ export default function Catalogo({ navigation }) {
     try {
       setLoading(true);
 
+   
       const response = await apiClient.get('/catalogo', {
         params: {
+          marca: marca,
+          modelo: modelo,
+          anio: anio,
+          precioMin: precioMin,
+          precioMax: precioMax
         }
       });
 
-      console.log('RESPUESTA:', response.data);
       setLista(response.data.data || []);
-
     } catch (error) {
       console.log('ERROR:', error.response?.data || error.message);
     } finally {
-      setLoading(false)
-    };
-  }
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     obtenerCatalogo();
@@ -40,45 +44,44 @@ export default function Catalogo({ navigation }) {
   return (
     <View style={s.screen}>
       <View style={s.container}>
+        <Text style={s.title}>Catálogo de Vehículos</Text>
 
-        <View style={s.row}>
-          <TextInput style={s.textinput} placeholder="Marca" onChangeText={setMarca} />
-          <TextInput style={s.textinput} placeholder="Modelo" onChangeText={setModelo} />
-        </View>
+        <View style={s.filterSection}>
+          <View style={s.row}>
+            <TextInput style={s.textinput} placeholder="Marca" value={marca} onChangeText={setMarca} />
+            <TextInput style={s.textinput} placeholder="Modelo" value={modelo} onChangeText={setModelo} />
+          </View>
 
-        <View style={s.column}>
-          <TextInput style={s.textinput2} placeholder="Año" onChangeText={setAnio} />
-          <TextInput style={s.textinput2} placeholder="Precio Min" onChangeText={setPrecioMin} />
-          <TextInput style={s.textinput2} placeholder="Precio Max" onChangeText={setPrecioMax} />
+          <TextInput style={s.textinput2} placeholder="Año" keyboardType="numeric" value={anio} onChangeText={setAnio} />
+          <View style={s.row}>
+            <TextInput style={[s.textinput, {width: '48%'}]} placeholder="Min $" keyboardType="numeric" value={precioMin} onChangeText={setPrecioMin} />
+            <TextInput style={[s.textinput, {width: '48%'}]} placeholder="Max $" keyboardType="numeric" value={precioMax} onChangeText={setPrecioMax} />
+          </View>
 
           <TouchableOpacity onPress={obtenerCatalogo} style={s.button}>
-            <Text style={s.sub}>Buscar</Text>
+            <Text style={s.sub}>{loading ? 'Buscando...' : 'Buscar Vehículos'}</Text>
           </TouchableOpacity>
         </View>
 
         <FlatList
           data={lista}
-          keyExtractor={(item, index) => index.toString()}
+          style={{ width: '100%' }}
+          keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() => navigation.navigate('DetalleCatalogo', { id: item.id })}
               style={s.card}
             >
-              <Image
-                source={{ uri: item.imagenUrl }}
-                style={s.image}
-                resizeMode='contain'
-              />
-
-              <Text style={s.bold}>{item.marca}</Text>
-              <Text>{item.modelo}</Text>
-              <Text>{item.precio}</Text>
-              <Text>{item.descripcionCorta}</Text>
-              <Text><Text style={s.bold}>Fecha: </Text>{item.anio}</Text>
+              <Image source={{ uri: item.imagenUrl }} style={s.image} resizeMode='cover' />
+              <View style={s.cardInfo}>
+                <Text style={s.cardTitle}>{item.marca} {item.modelo}</Text>
+                <Text style={s.cardPrice}>${item.precio}</Text>
+                <Text style={s.cardDesc} numberOfLines={2}>{item.descripcionCorta}</Text>
+                <Text style={s.cardYear}>Año: {item.anio}</Text>
+              </View>
             </TouchableOpacity>
           )}
         />
-
       </View>
     </View>
   );

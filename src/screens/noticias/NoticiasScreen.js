@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import apiClient from '../../services/apiClient'
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, FlatList, Image } from 'react-native';
 import { COLORS, FONTS } from '../../core/theme';
+import { useAuth } from '../../store/AuthContext';
 
 export default function Noticias({ navigation }) {
   const [lista, setLista] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  const { isLoggedIn } = useAuth();
   const obtenerNoticas = async () => {
     if (loading) return;
 

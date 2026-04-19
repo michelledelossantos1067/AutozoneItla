@@ -1,67 +1,59 @@
 import React, { useState, useEffect } from 'react';
-import apiClient from '../../services/apiClient'
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, FlatList, Modal } from 'react-native';
+import apiClient from '../../services/apiClient';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, FlatList, Modal, ActivityIndicator } from 'react-native';
 import { COLORS, FONTS } from '../../core/theme';
 
-export default function CombustibleScreen() {
+export default function CombustibleScreen({ route }) {
+  const { vehiculo_id } = route.params || {};
+
   const [lista, setLista] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [vehiculo_id, setId] = useState('');
   const [visible, setVisible] = useState(false);
+
+  const [filtroTipo, setFiltroTipo] = useState('');
   const [tipo, setTipo] = useState('');
   const [cantidad, setCantidad] = useState('');
   const [unidad, setUnidad] = useState('');
   const [monto, setMonto] = useState('');
 
+
   const obtenerCombustibles = async () => {
     if (loading) return;
 
-    if (!vehiculo_id) {
-      alert('Ingrese un ID de vehículo');
-      return;
-    }
-
     try {
-
       setLoading(true);
-
-
 
       const response = await apiClient.get('/combustibles', {
         params: {
           vehiculo_id,
+          tipo: filtroTipo || undefined
         }
       });
 
-      console.log(response.data);
-
-      setLista(response.data.data);
+      setLista(response.data?.data || []);
 
     } catch (error) {
       console.log(error.response?.data || error.message);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  const guardarCombustibles = async () => {
-    if (loading) return;
-
-    if (!vehiculo_id) {
-      alert('Ingrese un ID de vehículo');
+  const guardarCombustible = async () => {
+    if (!vehiculo_id || !tipo) {
+      alert('El tipo es obligatorio');
       return;
     }
 
     try {
-
       setLoading(true);
 
       const data = {
-        vehiculo_id: vehiculo_id,
-        tipo: tipo,
-        cantidad: cantidad,
-        unidad: unidad,
-        monto: monto,
+        vehiculo_id: Number(vehiculo_id),
+        tipo: tipo.trim(),
+        cantidad: Number(cantidad),
+        unidad: unidad.trim(),
+        monto: Number(monto),
       };
 
       const response = await apiClient.post('/combustibles',
@@ -75,104 +67,82 @@ export default function CombustibleScreen() {
         }
       );
 
-      console.log(response.data);
+      setVisible(false);
+      setTipo('');
+      setCantidad('');
+      setUnidad('');
+      setMonto('');
 
-      setLista(response.data.data);
+      obtenerCombustibles();
 
     } catch (error) {
       console.log(error.response?.data || error.message);
     } finally {
       setLoading(false);
     }
-  }
+  };
+
+  useEffect(() => {
+    obtenerCombustibles();
+  }, [filtroTipo]);
 
   return (
     <View style={s.screen}>
 
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={visible}
-        onRequestClose={() => {
-          Alert.alert('El modal ha sido cerrado.');
-          setVisible(!visible);
-        }}>
+      <Modal transparent visible={visible} animationType="fade">
         <View style={s.centeredView}>
           <View style={s.modalView}>
-            <Text >Registrar carga</Text>
+            <Text style={s.title}>Registrar Combustible</Text>
 
-            <TextInput keyboardType='numeric' placeholder='Introducir ID' value={vehiculo_id}
-              onChangeText={setId}></TextInput>
-            <TextInput placeholder='Tipo' value={tipo}
-              onChangeText={setTipo}></TextInput>
-            <TextInput placeholder='Cantidad' value={cantidad}
-              onChangeText={setCantidad}></TextInput>
-            <TextInput placeholder='Unidad' value={unidad}
-              onChangeText={setUnidad}></TextInput>
-            <TextInput placeholder='Monto' value={monto}
-              onChangeText={setMonto}></TextInput>
+            <TextInput placeholder="Tipo (Gasolina, Gasoil)" value={tipo} onChangeText={setTipo} style={s.input} />
+            <TextInput placeholder="Cantidad" value={cantidad} onChangeText={setCantidad} keyboardType="numeric" style={s.input} />
+            <TextInput placeholder="Unidad (Litros)" value={unidad} onChangeText={setUnidad} style={s.input} />
+            <TextInput placeholder="Monto" value={monto} onChangeText={setMonto} keyboardType="numeric" style={s.input} />
 
-            <TouchableOpacity onPress={guardarCombustibles}>
-              <Text>Guardar</Text>
+            <TouchableOpacity style={s.btn} onPress={guardarCombustible}>
+              <Text style={s.btnText}>Guardar</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => setVisible(!visible)}>
+            <TouchableOpacity onPress={() => setVisible(false)}>
               <Text>Cerrar</Text>
             </TouchableOpacity>
-
           </View>
         </View>
       </Modal>
 
-      <View style={{
-        width: 360,
-        height: 'auto',
-        backgroundColor: 'white',
-        borderWidth: 1.5,
-        marginBottom: 35,
-        alignItems: 'center'
-      }}>
 
+      <View style={s.card}>
+        <Text style={s.title}>Combustible</Text>
 
-        <TextInput placeholder='Introducir vehiculo' onChangeText={setId}></TextInput>
-
-        <TouchableOpacity onPress={() => setVisible(true)}>
-          <Text>Prueba</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={obtenerCombustibles}>
-          <Text>Prueba</Text>
-        </TouchableOpacity>
-
-        <FlatList style={{
-          maxHeight: 650,
-          alignContent: 'center',
-          padding: 20,
-          flexDirection: 'column'
-        }}
-          data={lista}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => (
-
-            <View style={{
-              borderWidth: 2,
-              marginBottom: 25,
-              gap: 10,
-              padding: 15
-            }}>
-
-              <Text><Text style={{ fontWeight: 'bold' }}>Tipo: </Text>{item.tipo}</Text>
-              <Text><Text style={{ fontWeight: 'bold' }}>Cantidad: </Text>{item.cantidad} {item.unidad}</Text>
-              <Text><Text style={{ fontWeight: 'bold' }}>Monto: </Text>{item.monto}</Text>
-              <Text><Text style={{ fontWeight: 'bold' }}>Fecha: </Text>{item.fecha}</Text>
-
-            </View>
-
-          )}
+        <TextInput
+          placeholder="Filtrar por tipo (Gasolina, Gasoil)"
+          value={filtroTipo}
+          onChangeText={setFiltroTipo}
+          style={s.input}
         />
 
+        <TouchableOpacity style={s.btn} onPress={() => setVisible(true)}>
+          <Text style={s.btnText}>+ Agregar Combustible</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={[s.btn, { backgroundColor: COLORS.primary }]} onPress={obtenerCombustibles}>
+          {loading ? <ActivityIndicator color="white" /> : <Text style={s.btnText}>Buscar</Text>}
+        </TouchableOpacity>
+
+        <FlatList
+          data={lista}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <View style={s.item}>
+              <Text><Text style={s.bold}>Tipo: </Text>{item.tipo}</Text>
+              <Text><Text style={s.bold}>Cantidad: </Text>{item.cantidad} {item.unidad}</Text>
+              <Text><Text style={s.bold}>Monto: </Text>{item.monto}</Text>
+              <Text><Text style={s.bold}>Fecha: </Text>{item.fecha}</Text>
+            </View>
+          )}
+        />
       </View>
-    </View >
+    </View>
   );
 }
 
