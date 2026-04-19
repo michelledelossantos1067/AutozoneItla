@@ -16,12 +16,14 @@ export default function ForoScreen({ navigation, route }) {
   const fetchTemas = async (pageNum = 1) => {
     try {
       console.log('Recargando temas...', pageNum);
-      const { data } = await apiClient.get('/foro/temas', {
+
+      const endpoint = isLoggedIn ? '/foro/temas' : '/publico/foro';
+
+      const { data } = await apiClient.get(endpoint, {
         params: { page: pageNum, limit: 20 }
       });
-
       const newTemas = (data.data || []).map(fromJson);
-      console.log('Temas cargados:', newTemas.length, newTemas.map(t => ({id: t.id, titulo: t.titulo, respuestas: t.cantidadRespuestas})));
+      console.log('Temas cargados:', newTemas.length, newTemas.map(t => ({ id: t.id, titulo: t.titulo, respuestas: t.cantidadRespuestas })));
       setTemas(pageNum === 1 ? newTemas : [...temas, ...newTemas]);
       setPage(pageNum);
       setHasMore(newTemas.length === 20);

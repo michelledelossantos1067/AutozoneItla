@@ -1,27 +1,41 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import apiClient from '../../services/apiClient';
 import { COLORS, FONTS } from '../../core/theme';
+import { useFocusEffect } from '@react-navigation/native';
+
 
 export default function DetalleVehiculoScreen({ route, navigation }) {
   const { id } = route.params || {};
   const [vehiculo, setVehiculo] = useState(null);
 
   if (!id) {
-    console.error(" No se recibió el parámetro 'id' en DetalleVehiculoScreen");
+    console.error("No se recibio el parametro 'id' en DetalleVehiculoScreen");
+    console.error(" No se recibio el parámetro 'id' en DetalleVehiculoScreen");
     return <Text style={s.error}>Error: No se recibió el ID del vehículo</Text>;
   }
 
   const fetchDetalle = async () => {
     try {
       const { data } = await apiClient.get('/vehiculos/detalle', { params: { id } });
-      setVehiculo(data.data); //  el detalle está en data.data
+      setVehiculo(data.data);
+      setVehiculo(data.data);
     } catch (err) {
-      console.error('Error cargando detalle del vehículo:', err.response?.data || err.message);
+      console.error('Error cargando detalle del vehiculo:', err.response?.data || err.message);
     }
   };
 
   useEffect(() => { fetchDetalle(); }, []);
+
+  useEffect(() => {
+    fetchDetalle();
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchDetalle();
+    }, [])
+  );
 
   if (!vehiculo) {
     return <Text style={s.loading}>Cargando detalle...</Text>;
@@ -49,10 +63,10 @@ export default function DetalleVehiculoScreen({ route, navigation }) {
         </Text>
       </View>
 
-      {/* 🔗 Accesos rápidos con vehiculo_id */}
+
       <View style={s.quickAccess}>
-        <TouchableOpacity 
-          style={s.btn} 
+        <TouchableOpacity
+          style={s.btn}
           onPress={() => {
             console.log("➡ Navegando a Mantenimientos con vehiculo_id:", vehiculo.id);
             navigation.navigate('Mantenimientos', { vehiculo_id: vehiculo.id });
@@ -61,8 +75,8 @@ export default function DetalleVehiculoScreen({ route, navigation }) {
           <Text style={s.btnText}>Mantenimientos</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={s.btn} 
+        <TouchableOpacity
+          style={s.btn}
           onPress={() => {
             console.log("➡ Navegando a Combustible con vehiculo_id:", vehiculo.id);
             navigation.navigate('Combustible', { vehiculo_id: vehiculo.id });
@@ -71,8 +85,8 @@ export default function DetalleVehiculoScreen({ route, navigation }) {
           <Text style={s.btnText}>Combustible</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={s.btn} 
+        <TouchableOpacity
+          style={s.btn}
           onPress={() => {
             console.log("➡ Navegando a Gomas con vehiculo_id:", vehiculo.id);
             navigation.navigate('Gomas', { vehiculo_id: vehiculo.id });
@@ -81,19 +95,30 @@ export default function DetalleVehiculoScreen({ route, navigation }) {
           <Text style={s.btnText}>Gomas</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity 
-          style={s.btn} 
+
+        <TouchableOpacity
+          style={s.btn}
           onPress={() => {
-            console.log("➡ Navegando a Gastos/Ingresos con vehiculo_id:", vehiculo.id);
+            console.log("➡ Navegando a Gastos/", vehiculo.id);
             navigation.navigate('Gastos', { vehiculo_id: vehiculo.id });
           }}
         >
-          <Text style={s.btnText}>Gastos/Ingresos</Text>
+          <Text style={s.btnText}>Gastos</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={s.btn}
+          onPress={() => {
+            console.log("➡ Navegando a ingresos/", vehiculo.id);
+            navigation.navigate('Ingresos', { vehiculo_id: vehiculo.id });
+          }}
+        >
+          <Text style={s.btnText}>Ingresos</Text>
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity 
-        style={s.editBtn} 
+      <TouchableOpacity
+        style={s.editBtn}
         onPress={() => {
           console.log("➡ Navegando a FormVehiculo con vehiculo:", vehiculo);
           navigation.navigate('FormVehiculo', { vehiculo });

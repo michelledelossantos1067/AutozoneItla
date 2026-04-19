@@ -46,22 +46,7 @@ export default function HomeScreen({ navigation }) {
           <TouchableOpacity onPress={() => navigation.navigate('Vehiculos')} style={s.TouchableOpacity}>
             <Text style={s.sub}>Mis Vehiculos</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => navigation.navigate('Mantenimientos')} style={s.TouchableOpacity}>
-            <Text style={s.sub}>Mantenimiento</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => navigation.navigate('Combustible')} style={s.TouchableOpacity}>
-            <Text style={s.sub}>Combustible y Aceite</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => navigation.navigate('Gomas')} style={s.TouchableOpacity}>
-            <Text style={s.sub}>Estado de Gomas</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => navigation.navigate('Gastos')} style={s.TouchableOpacity}>
-            <Text style={s.sub}>Gastos e Ingresos</Text>
-          </TouchableOpacity>
+          
         </>
       )}
 

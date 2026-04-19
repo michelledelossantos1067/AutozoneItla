@@ -14,58 +14,58 @@ export default function FormVehiculoScreen({ navigation, route }) {
   const [ruedas, setRuedas] = useState(editing?.cantidadRuedas || 4);
   const [foto, setFoto] = useState(editing?.fotoUrl || null);
 
- const handleSave = async () => {
-  if (!placa.trim() || !chasis.trim() || !marca.trim() || !modelo.trim() || !anio.trim()) {
-    alert('Placa, chasis, marca, modelo y año son requeridos');
-    return;
-  }
-
-  try {
-    const datax = {
-      placa: placa.trim(),
-      chasis: chasis.trim(),
-      marca: marca.trim(),
-      modelo: modelo.trim(),
-      anio: Number(anio),
-      cantidadRuedas: Number(ruedas),
-      ...(editing ? { id: editing.id } : {}) // incluir id si es edición
-    };
-
-    const formData = new FormData();
-    formData.append('datax', JSON.stringify(datax));
-
-    if (foto) {
-      const extension = foto.split('.').pop();
-      const mimeType = extension === 'png' ? 'image/png'
-                      : extension === 'webp' ? 'image/webp'
-                      : extension === 'heic' ? 'image/heic'
-                      : 'image/jpeg'; // fallback
-
-      formData.append('foto', {
-        uri: foto,
-        type: mimeType,
-        name: `vehiculo.${extension || 'jpg'}`,
-      });
+  const handleSave = async () => {
+    if (!placa.trim() || !chasis.trim() || !marca.trim() || !modelo.trim() || !anio.trim()) {
+      alert('Placa, chasis, marca, modelo y año son requeridos');
+      return;
     }
 
-    console.log([...formData]); //  depuración
+    try {
+      const datax = {
+        placa: placa.trim(),
+        chasis: chasis.trim(),
+        marca: marca.trim(),
+        modelo: modelo.trim(),
+        anio: Number(anio),
+        cantidadRuedas: Number(ruedas),
+        ...(editing ? { id: editing.id } : {}) // incluir id si es edición
+      };
 
-    if (editing) {
-      await apiClient.post('/vehiculos/editar', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-    } else {
-      await apiClient.post('/vehiculos', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const formData = new FormData();
+      formData.append('datax', JSON.stringify(datax));
+
+      if (foto) {
+        const extension = foto.split('.').pop();
+        const mimeType = extension === 'png' ? 'image/png'
+          : extension === 'webp' ? 'image/webp'
+            : extension === 'heic' ? 'image/heic'
+              : 'image/jpeg'; // fallback
+
+        formData.append('foto', {
+          uri: foto,
+          type: mimeType,
+          name: `vehiculo.${extension || 'jpg'}`,
+        });
+      }
+
+      console.log([...formData]); //  depuración
+
+      if (editing) {
+        await apiClient.post('/vehiculos/editar', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      } else {
+        await apiClient.post('/vehiculos', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+      }
+
+      navigation.goBack();
+    } catch (err) {
+      console.error('Error guardando vehículo:', err.response?.data || err.message);
+      alert(err.response?.data?.message || 'Error al guardar vehículo');
     }
-
-    navigation.goBack();
-  } catch (err) {
-    console.error('Error guardando vehículo:', err.response?.data || err.message);
-    alert(err.response?.data?.message || 'Error al guardar vehículo');
-  }
-};
+  };
 
   const handlePickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -82,11 +82,19 @@ export default function FormVehiculoScreen({ navigation, route }) {
         const fileName = asset.fileName || `vehiculo.${extension || 'jpg'}`;
 
         const formData = new FormData();
+
+
+        formData.append('datax', JSON.stringify({
+          id: editing.id
+        }));
+
         formData.append('foto', {
           uri: asset.uri,
           type: mimeType,
           name: fileName,
         });
+
+        console.log("SUBIENDO FOTO CON ID:", editing.id);
 
         await apiClient.post('/vehiculos/foto', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
@@ -125,4 +133,3 @@ const s = StyleSheet.create({
   saveBtn: { backgroundColor: COLORS.primary, padding: 15, borderRadius: 6 },
   saveText: { color: COLORS.textLight, textAlign: 'center', fontWeight: '700' },
 });
-

@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import apiClient from '../../services/apiClient';
 import { COLORS, FONTS } from '../../core/theme';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function VehiculosScreen({ navigation }) {
   const [vehiculos, setVehiculos] = useState([]);
@@ -9,19 +10,25 @@ export default function VehiculosScreen({ navigation }) {
 
   const fetchVehiculos = async (pageNum = 1) => {
     try {
-      const { data } = await apiClient.get('/vehiculos', {  
+      const { data } = await apiClient.get('/vehiculos', {
         params: { page: pageNum, limit: 20 }
       });
 
-      //  listado está en data.data
-      setVehiculos(pageNum === 1 ? data.data : [...vehiculos, ...data.data]);
+      setVehiculos(prev =>
+        pageNum === 1 ? data.data : [...prev, ...data.data]
+      );
+
       setPage(pageNum);
     } catch (err) {
       console.error('Error cargando vehículos:', err.response?.data || err.message);
     }
   };
 
-  useEffect(() => { fetchVehiculos(); }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchVehiculos(1);
+    }, [])
+  );
 
   const renderItem = ({ item }) => (
     <TouchableOpacity

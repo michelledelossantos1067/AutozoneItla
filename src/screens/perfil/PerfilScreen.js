@@ -117,11 +117,11 @@ export default function PerfilScreen() {
 
 
 
-        <TouchableOpacity style={s.TouchableOpacity} onPress={abrirCamara}>
+        <TouchableOpacity disabled={loading} style={s.TouchableOpacity} onPress={abrirCamara}>
           <Text>Tomar Foto</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={s.TouchableOpacity} onPress={abrirGaleria}>
+        <TouchableOpacity disabled={loading} style={s.TouchableOpacity} onPress={abrirGaleria}>
           <Text>Elegir de Galería</Text>
         </TouchableOpacity>
 

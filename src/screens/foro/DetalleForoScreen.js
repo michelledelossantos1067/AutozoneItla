@@ -17,7 +17,9 @@ export default function DetalleForoScreen({ route, navigation }) {
 
   const fetchTema = async () => {
     try {
-      const { data } = await apiClient.get('/foro/detalle', { params: { id } });
+      const endpoint = isLoggedIn ? '/foro/detalle' : '/publico/foro/detalle';
+
+      const { data } = await apiClient.get(endpoint, { params: { id } });
       console.log('Tema cargado:', data.data);
       setTema(fromJson(data.data));
     } catch (err) {
@@ -47,7 +49,6 @@ export default function DetalleForoScreen({ route, navigation }) {
       });
       console.log('Respuesta enviada:', response.data);
       setReplyText('');
-      // Wait a moment for the backend to process, then refresh
       setTimeout(() => {
         fetchTema();
       }, 1000);

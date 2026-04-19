@@ -7,6 +7,7 @@ export default function RegistroScreen({ navigation }) {
   const [matricula, setMatricula] = useState('');
   const [loading, setLoading] = useState(false);
 
+  
   const guardarRegistro = async () => {
     if (loading) return;
 
