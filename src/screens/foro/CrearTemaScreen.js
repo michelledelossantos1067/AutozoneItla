@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import apiClient from '../../services/apiClient';
 import { useAuth } from '../../store/AuthContext';
 import { COLORS, FONTS, SPACING } from '../../core/theme';
@@ -24,26 +25,31 @@ export default function CrearTemaScreen({ navigation }) {
   useEffect(() => { fetchVehiculos(); }, []);
 
   const handleCreate = async () => {
-    if (!titulo.trim() || !descripcion.trim()) {
-      Alert.alert('Error', 'Título y descripción son requeridos');
+    if (!titulo.trim() || !descripcion.trim() || !vehiculoId) {
+      Alert.alert('Error', 'Título, descripción y vehículo son requeridos');
       return;
     }
 
     setLoading(true);
     try {
-      const formData = new FormData();
-      formData.append('datax', JSON.stringify({
-        vehiculo_id: vehiculoId ? parseInt(vehiculoId) : null,
+      const params = new URLSearchParams();
+      params.append('datax', JSON.stringify({
+        vehiculo_id: parseInt(vehiculoId),
         titulo: titulo.trim(),
         descripcion: descripcion.trim(),
       }));
-      await apiClient.post('/foro/crear', formData);
+      
+      console.log('Enviando tema:', params.toString());
+      
+      await apiClient.post('/foro/crear', params, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      });
       Alert.alert('Éxito', 'Tema creado correctamente', [
         { text: 'OK', onPress: () => navigation.goBack() }
       ]);
     } catch (err) {
       console.error('Error creando tema:', err.response?.data || err.message);
-      Alert.alert('Error', 'No se pudo crear el tema');
+      Alert.alert('Error', err.response?.data?.message || 'No se pudo crear el tema');
     } finally {
       setLoading(false);
     }
@@ -72,14 +78,23 @@ export default function CrearTemaScreen({ navigation }) {
         maxLength={2000}
       />
 
-      <Text style={s.label}>ID del vehículo (opcional)</Text>
-      <TextInput
-        style={s.input}
-        placeholder="Ingresa el ID del vehículo..."
-        value={vehiculoId}
-        onChangeText={setVehiculoId}
-        keyboardType="numeric"
-      />
+      <Text style={s.label}>Vehículo *</Text>
+      <View style={s.pickerContainer}>
+        <Picker
+          selectedValue={vehiculoId}
+          onValueChange={setVehiculoId}
+          style={s.picker}
+        >
+          <Picker.Item label="Selecciona un vehículo..." value="" />
+          {vehiculos.map((v) => (
+            <Picker.Item
+              key={v.id}
+              label={`${v.marca} ${v.modelo} (${v.placa})`}
+              value={v.id.toString()}
+            />
+          ))}
+        </Picker>
+      </View>
 
       <TouchableOpacity
         style={[s.button, loading && s.buttonDisabled]}
@@ -112,6 +127,16 @@ const s = StyleSheet.create({
     fontSize: FONTS.sizes.sm,
     color: COLORS.textPrimary,
     backgroundColor: COLORS.surface,
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 8,
+    backgroundColor: COLORS.surface,
+    overflow: 'hidden',
+  },
+  picker: {
+    color: COLORS.textPrimary,
   },
   textArea: { minHeight: 120 },
   button: {
