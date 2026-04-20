@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal, TextInput } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Modal, TextInput, ScrollView } from 'react-native';
 import apiClient from '../../services/apiClient';
 import { COLORS, FONTS } from '../../core/theme';
 
@@ -13,25 +13,20 @@ export default function GomasScreen({ route }) {
   const [modalVisible, setModalVisible] = useState(false);
 
   if (!vehiculo_id) {
-    console.error(" No se recibió el parámetro 'vehiculo_id' en GomasScreen");
     return <Text style={s.error}>Error: No se recibió el ID del vehículo</Text>;
   }
 
-  //  GET /gomas?vehiculo_id=
   const fetchGomas = async () => {
     try {
-      console.log("➡ Consultando gomas con vehiculo_id:", vehiculo_id);
       const { data } = await apiClient.get('/gomas', { params: { vehiculo_id } });
-      console.log("Respuesta gomas:", data);
       setGomas(data.data.gomas);
     } catch (err) {
-      console.error('Error cargando gomas:', err.response?.data || err.message);
+      console.log(err.response?.data || err.message);
     }
   };
 
   useEffect(() => { fetchGomas(); }, []);
 
-  //  POST /gomas/actualizar
   const actualizarEstado = async () => {
     if (!selectedGoma?.id || !estado.trim()) {
       alert("Debes seleccionar una goma y un estado válido");
@@ -52,12 +47,10 @@ export default function GomasScreen({ route }) {
       setModalVisible(false);
       fetchGomas();
     } catch (err) {
-      console.error('Error actualizando estado de goma:', err.response?.data || err.message);
       alert(err.response?.data?.message || 'Error al actualizar estado');
     }
   };
 
-  //  POST /gomas/pinchazos
   const registrarPinchazo = async () => {
     if (!selectedGoma?.id || !descripcion.trim() || !fecha.trim()) {
       alert("Debes llenar descripción y fecha");
@@ -79,7 +72,6 @@ export default function GomasScreen({ route }) {
       setModalVisible(false);
       fetchGomas();
     } catch (err) {
-      console.error('Error registrando pinchazo:', err.response?.data || err.message);
       alert(err.response?.data?.message || 'Error al registrar pinchazo');
     }
   };
@@ -96,34 +88,41 @@ export default function GomasScreen({ route }) {
 
   return (
     <View style={s.screen}>
-      {gomas.map((goma) => (
-        <TouchableOpacity
-          key={goma.id}
-          style={[s.goma, { backgroundColor: getColor(goma.estado) }]}
-          onPress={() => { setSelectedGoma(goma); setModalVisible(true); }}
-        >
-          <Text style={s.gomaText}>{goma.posicion} ({goma.estado})</Text>
-          <Text style={s.gomaSub}>Pinchazos: {goma.totalPinchazos}</Text>
-        </TouchableOpacity>
-      ))}
-
-      <Modal visible={modalVisible} animationType="slide">
-        <View style={s.modal}>
-          <Text style={s.modalTitle}>Actualizar {selectedGoma?.posicion}</Text>
-          <TextInput placeholder="Nuevo estado" value={estado} onChangeText={setEstado} style={s.input} />
-          <TouchableOpacity style={s.btn} onPress={actualizarEstado}>
-            <Text style={s.btnText}>Actualizar Estado</Text>
+      <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
+        {gomas.map((goma) => (
+          <TouchableOpacity
+            key={goma.id}
+            style={[s.goma, { backgroundColor: getColor(goma.estado) }]}
+            onPress={() => { setSelectedGoma(goma); setModalVisible(true); }}
+          >
+            <Text style={s.gomaText}>{goma.posicion} ({goma.estado})</Text>
+            <Text style={s.gomaSub}>Pinchazos: {goma.totalPinchazos}</Text>
           </TouchableOpacity>
+        ))}
+      </ScrollView>
 
-          <TextInput placeholder="Descripción del pinchazo" value={descripcion} onChangeText={setDescripcion} style={s.input} />
-          <TextInput placeholder="Fecha (YYYY-MM-DD)" value={fecha} onChangeText={setFecha} style={s.input} />
-          <TouchableOpacity style={s.btn} onPress={registrarPinchazo}>
-            <Text style={s.btnText}>Registrar Pinchazo</Text>
-          </TouchableOpacity>
+      <Modal transparent visible={modalVisible} animationType="fade">
+        <View style={s.centeredView}>
+          <View style={s.modalView}>
+            <Text style={s.modalTitle}>Actualizar {selectedGoma?.posicion}</Text>
 
-          <TouchableOpacity style={s.closeBtn} onPress={() => setModalVisible(false)}>
-            <Text style={s.closeText}>Cerrar</Text>
-          </TouchableOpacity>
+            <TextInput placeholder="Nuevo estado" value={estado} onChangeText={setEstado} style={s.input} />
+
+            <TouchableOpacity style={[s.btn, s.btnPrimary]} onPress={actualizarEstado}>
+              <Text style={s.btnText}>Actualizar Estado</Text>
+            </TouchableOpacity>
+
+            <TextInput placeholder="Descripción del pinchazo" value={descripcion} onChangeText={setDescripcion} style={s.input} />
+            <TextInput placeholder="Fecha (YYYY-MM-DD)" value={fecha} onChangeText={setFecha} style={s.input} />
+
+            <TouchableOpacity style={s.btn} onPress={registrarPinchazo}>
+              <Text style={s.btnText}>Registrar Pinchazo</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => setModalVisible(false)}>
+              <Text style={s.closeText}>Cerrar</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </Modal>
     </View>
@@ -131,16 +130,97 @@ export default function GomasScreen({ route }) {
 }
 
 const s = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: COLORS.background, padding: 10 },
-  error: { textAlign: 'center', marginTop: 20, color: COLORS.danger },
-  goma: { padding: 15, borderRadius: 6, marginBottom: 10 },
-  gomaText: { color: COLORS.textLight, fontWeight: '600' },
-  gomaSub: { color: COLORS.textMuted, fontSize: FONTS.sizes.sm },
-  modal: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: COLORS.background },
-  modalTitle: { fontSize: FONTS.sizes.md, fontWeight: '700', marginBottom: 10 },
-  input: { borderWidth: 1, borderColor: COLORS.border, padding: 10, borderRadius: 6, marginBottom: 10 },
-  btn: { backgroundColor: COLORS.primary, padding: 12, borderRadius: 6, marginBottom: 10 },
-  btnText: { color: COLORS.textLight, textAlign: 'center', fontWeight: '600' },
-  closeBtn: { backgroundColor: COLORS.danger, padding: 12, borderRadius: 6 },
-  closeText: { color: COLORS.textLight, textAlign: 'center', fontWeight: '600' },
+  screen: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+    padding: 16
+  },
+
+  error: {
+    textAlign: 'center',
+    marginTop: 20,
+    color: COLORS.danger
+  },
+
+  goma: {
+    borderRadius: 12,
+    padding: 15,
+    marginBottom: 10
+  },
+
+  gomaText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: FONTS.sizes.md
+  },
+
+  gomaSub: {
+    color: '#fff',
+    fontSize: FONTS.sizes.sm,
+    marginTop: 4,
+    opacity: 0.9
+  },
+
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.4)'
+  },
+
+  modalView: {
+    width: '90%',
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 }
+  },
+
+  modalTitle: {
+    fontSize: FONTS.sizes.md,
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: 15,
+    color: COLORS.textPrimary
+  },
+
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    marginBottom: 10,
+    backgroundColor: '#fafafa',
+    color: COLORS.textPrimary
+  },
+
+  btn: {
+    backgroundColor: COLORS.primaryLight,
+    borderRadius: 10,
+    height: 45,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 5
+  },
+
+  btnPrimary: {
+    backgroundColor: COLORS.primary
+  },
+
+  btnText: {
+    color: '#fff',
+    fontWeight: '600'
+  },
+
+  closeText: {
+    marginTop: 10,
+    textAlign: 'center',
+    color: COLORS.textMuted
+  }
 });

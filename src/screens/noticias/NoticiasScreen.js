@@ -1,34 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../../services/apiClient'
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, FlatList, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, ActivityIndicator } from 'react-native';
 import { COLORS, FONTS } from '../../core/theme';
-import { useAuth } from '../../store/AuthContext';
 
 export default function Noticias({ navigation }) {
   const [lista, setLista] = useState([]);
   const [loading, setLoading] = useState(false);
-  const { isLoggedIn } = useAuth();
+
   const obtenerNoticas = async () => {
     if (loading) return;
 
     try {
-
       setLoading(true);
-
       const response = await apiClient.get('/publico/noticias');
-
-      console.log(response.data);
-
-      setLista(response.data.data);
-
+      setLista(response.data.data || []);
     } catch (error) {
       console.log(error.response?.data || error.message);
     } finally {
       setLoading(false);
     }
-
-
-  }
+  };
 
   useEffect(() => {
     obtenerNoticas();
@@ -36,52 +27,94 @@ export default function Noticias({ navigation }) {
 
   return (
     <View style={s.screen}>
-
-      <View style={{
-        width: 360,
-        height: '95%',
-        backgroundColor: 'white',
-        borderWidth: 1.5,
-        marginTop: 20,
-        marginBottom: 20,
-        alignItems: 'center'
-      }}>
-
-        <FlatList style={{
-          maxHeight: 'auto',
-          alignContent: 'center',
-          padding: 20
-        }}
+      {loading && lista.length === 0 ? (
+        <ActivityIndicator size="large" color={COLORS.primary} />
+      ) : (
+        <FlatList
+          contentContainerStyle={s.list}
           data={lista}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('DetalleNoticia', { id: item.id })}
+              style={s.card}
+            >
+              <Image
+                source={{ uri: item.imagenUrl }}
+                style={s.image}
+                resizeMode="cover"
+              />
 
-            <TouchableOpacity onPress={() => navigation.navigate('DetalleNoticia', { id: item.id })}
-              style={{
-                borderWidth: 2,
-                marginBottom: 25,
-                gap: 10,
-                padding: 15
-              }}>
-              <Image source={{ uri: item.imagenUrl }} style={{ width: '100%', height: 150, alignSelf: 'center', marginTop: 10 }} resizeMode='contain'></Image>
-
-              <Text style={{ fontWeight: 'bold' }}>{item.titulo}</Text>
-              <Text>{item.resumen}</Text>
-              <Text><Text style={{ fontWeight: 'bold' }}>Fecha: </Text>{item.fecha}</Text>
-
+              <View style={s.cardContent}>
+                <Text style={s.title}>{item.titulo}</Text>
+                <Text style={s.resumen} numberOfLines={2}>{item.resumen}</Text>
+                <Text style={s.fecha}>Fecha: {item.fecha}</Text>
+              </View>
             </TouchableOpacity>
-
           )}
+          ListEmptyComponent={
+            <Text style={s.empty}>No hay noticias disponibles</Text>
+          }
         />
-
-      </View>
-    </View >
+      )}
+    </View>
   );
 }
 
 const s = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: COLORS.background, alignItems: 'center', justifyContent: 'center' },
-  title: { fontSize: FONTS.sizes.lg, fontWeight: '700', color: COLORS.textPrimary },
-  sub: { fontSize: FONTS.sizes.sm, color: COLORS.textMuted, marginTop: 8 },
-  TouchableOpacity: { backgroundColor: COLORS.primaryLight, justifyContent: 'center', alignItems: 'center', marginBottom: 10, width: '50%', borderRadius: 15, height: 40 }
+  screen: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+    padding: 16
+  },
+
+  list: {
+    paddingBottom: 20
+  },
+
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    marginBottom: 15,
+    overflow: 'hidden',
+
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 }
+  },
+
+  image: {
+    width: '100%',
+    height: 180
+  },
+
+  cardContent: {
+    padding: 12
+  },
+
+  title: {
+    fontSize: FONTS.sizes.md,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+    marginBottom: 5
+  },
+
+  resumen: {
+    fontSize: FONTS.sizes.sm,
+    color: COLORS.textMuted,
+    marginBottom: 6
+  },
+
+  fecha: {
+    fontSize: FONTS.sizes.sm,
+    color: COLORS.textMuted
+  },
+
+  empty: {
+    textAlign: 'center',
+    marginTop: 20,
+    color: COLORS.textMuted
+  }
 });

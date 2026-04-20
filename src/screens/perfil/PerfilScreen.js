@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../../store/AuthContext';
 import apiClient from '../../services/apiClient';
@@ -23,7 +23,6 @@ export default function PerfilScreen() {
     obtenerPerfil();
   }, []);
 
-
   const abrirCamara = async () => {
     const permiso = await ImagePicker.requestCameraPermissionsAsync();
     if (!permiso.granted) return alert('Permiso denegado');
@@ -37,7 +36,6 @@ export default function PerfilScreen() {
       subirImagen(result.assets[0]);
     }
   };
-
 
   const abrirGaleria = async () => {
     const permiso = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -71,8 +69,6 @@ export default function PerfilScreen() {
         }
       });
 
-      console.log('RESPUESTA FOTO:', response.data);
-
       updateUsuario({ fotoUrl: response.data.data?.fotoUrl });
 
     } catch (error) {
@@ -86,43 +82,33 @@ export default function PerfilScreen() {
   return (
     <View style={s.screen}>
 
-      <View style={{
-        width: 340,
-        height: 'auto',
-        backgroundColor: 'white',
-        borderWidth: 1.5,
-        gap: 15,
-        display: 'flex',
-        alignItems: 'center'
-      }}>
-
+      <View style={s.card}>
 
         <Image
           source={{ uri: usuario?.fotoUrl }}
-          style={{ width: 120, height: 120, borderRadius: 60, borderWidth: 1.5, marginTop: 15 }}
+          style={s.avatar}
         />
 
-        <View style={{
-          alignItems: 'flex-start',
-          justifyContent: 'center',
-          gap: 15
-        }}>
+        <View style={s.info}>
+          <Text style={s.label}>Nombre</Text>
+          <Text style={s.value}>{usuario?.nombre} {usuario?.apellido}</Text>
 
-          <Text><Text style={{ fontWeight: 'bold' }}>Nombre: </Text>{usuario?.nombre}</Text>
-          <Text><Text style={{ fontWeight: 'bold' }}>Apellido: </Text>{usuario?.apellido}</Text>
-          <Text><Text style={{ fontWeight: 'bold' }}>Correo Electronico: </Text>{usuario?.correo}</Text>
-          <Text><Text style={{ fontWeight: 'bold' }}>Rol: </Text>{usuario?.rol}</Text>
-          <Text><Text style={{ fontWeight: 'bold' }}>Grupo: </Text>{usuario?.grupo}</Text>
+          <Text style={s.label}>Correo</Text>
+          <Text style={s.value}>{usuario?.correo}</Text>
+
+          <Text style={s.label}>Rol</Text>
+          <Text style={s.value}>{usuario?.rol}</Text>
+
+          <Text style={s.label}>Grupo</Text>
+          <Text style={s.value}>{usuario?.grupo}</Text>
         </View>
 
-
-
-        <TouchableOpacity disabled={loading} style={s.TouchableOpacity} onPress={abrirCamara}>
-          <Text>Tomar Foto</Text>
+        <TouchableOpacity disabled={loading} style={s.button} onPress={abrirCamara}>
+          {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.buttonText}>Tomar Foto</Text>}
         </TouchableOpacity>
 
-        <TouchableOpacity disabled={loading} style={s.TouchableOpacity} onPress={abrirGaleria}>
-          <Text>Elegir de Galería</Text>
+        <TouchableOpacity disabled={loading} style={s.buttonOutline} onPress={abrirGaleria}>
+          <Text style={s.buttonOutlineText}>Elegir de Galería</Text>
         </TouchableOpacity>
 
       </View>
@@ -132,8 +118,82 @@ export default function PerfilScreen() {
 }
 
 const s = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: COLORS.background, alignItems: 'center', justifyContent: 'center', },
-  title: { fontSize: FONTS.sizes.lg, fontWeight: '700', color: COLORS.textPrimary },
-  sub: { fontSize: FONTS.sizes.sm, color: COLORS.textMuted, marginTop: 8 },
-  TouchableOpacity: { backgroundColor: COLORS.primaryLight, justifyContent: 'center', alignItems: 'center', marginBottom: 10, width: '50%', borderRadius: 15, height: 40 }
+  screen: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20
+  },
+
+  card: {
+    width: '100%',
+    backgroundColor: '#fff',
+    borderRadius: 18,
+    padding: 20,
+    alignItems: 'center',
+
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 }
+  },
+
+  avatar: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    marginBottom: 15,
+    borderWidth: 2,
+    borderColor: COLORS.primary
+  },
+
+  info: {
+    width: '100%',
+    marginBottom: 15
+  },
+
+  label: {
+    fontSize: FONTS.sizes.sm,
+    color: COLORS.textMuted,
+    marginTop: 8
+  },
+
+  value: {
+    fontSize: FONTS.sizes.md,
+    color: COLORS.textPrimary,
+    fontWeight: '600'
+  },
+
+  button: {
+    width: '100%',
+    height: 45,
+    backgroundColor: COLORS.primary,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10
+  },
+
+  buttonText: {
+    color: '#fff',
+    fontWeight: '600'
+  },
+
+  buttonOutline: {
+    width: '100%',
+    height: 45,
+    borderWidth: 1.5,
+    borderColor: COLORS.primary,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10
+  },
+
+  buttonOutlineText: {
+    color: COLORS.primary,
+    fontWeight: '600'
+  }
 });

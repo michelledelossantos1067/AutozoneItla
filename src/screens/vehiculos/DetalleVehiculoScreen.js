@@ -131,18 +131,104 @@ export default function DetalleVehiculoScreen({ route, navigation }) {
 }
 
 const s = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: COLORS.background, padding: 10 },
-  error: { textAlign: 'center', marginTop: 20, color: COLORS.danger },
-  loading: { textAlign: 'center', marginTop: 20, color: COLORS.textMuted },
-  image: { width: '100%', height: 200, borderRadius: 8, marginBottom: 10 },
-  title: { fontSize: FONTS.sizes.lg, fontWeight: '700', color: COLORS.textPrimary },
-  sub: { fontSize: FONTS.sizes.sm, color: COLORS.textMuted, marginBottom: 4 },
-  section: { marginTop: 20 },
-  sectionTitle: { fontSize: FONTS.sizes.md, fontWeight: '600', marginBottom: 10 },
-  card: { fontSize: FONTS.sizes.sm, marginBottom: 6 },
-  quickAccess: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 20 },
-  btn: { backgroundColor: COLORS.secondary, padding: 10, borderRadius: 6, margin: 5 },
-  btnText: { color: COLORS.textLight, fontWeight: '600' },
-  editBtn: { backgroundColor: COLORS.primary, padding: 15, borderRadius: 6, marginTop: 20 },
-  editText: { color: COLORS.textLight, textAlign: 'center', fontWeight: '700' },
+  screen: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+    padding: 15,
+  },
+
+  error: {
+    textAlign: 'center',
+    marginTop: 30,
+    color: COLORS.danger,
+    fontSize: 16,
+    fontWeight: '600'
+  },
+
+  loading: {
+    textAlign: 'center',
+    marginTop: 30,
+    color: COLORS.textMuted,
+    fontSize: 15
+  },
+
+  image: {
+    width: '100%',
+    height: 220,
+    borderRadius: 15,
+    marginBottom: 15,
+    backgroundColor: '#EEE'
+  },
+
+  title: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+    marginBottom: 5
+  },
+
+  sub: {
+    fontSize: FONTS.sizes.sm,
+    color: COLORS.textMuted,
+    marginBottom: 4
+  },
+
+  section: {
+    marginTop: 25,
+    backgroundColor: 'white',
+    borderRadius: 15,
+    padding: 15,
+    elevation: 5
+  },
+
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 10,
+    color: COLORS.primary
+  },
+
+  card: {
+    fontSize: 14,
+    marginBottom: 6,
+    fontWeight: '500'
+  },
+
+  quickAccess: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginTop: 20
+  },
+
+  btn: {
+    width: '48%',
+    backgroundColor: COLORS.secondary,
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginBottom: 10,
+    alignItems: 'center',
+    elevation: 3
+  },
+
+  btnText: {
+    color: COLORS.textLight,
+    fontWeight: '600',
+    fontSize: 13
+  },
+
+  editBtn: {
+    backgroundColor: COLORS.primary,
+    paddingVertical: 15,
+    borderRadius: 15,
+    marginTop: 25,
+    alignItems: 'center',
+    elevation: 4
+  },
+
+  editText: {
+    color: COLORS.textLight,
+    fontWeight: '700',
+    fontSize: 16
+  }
 });

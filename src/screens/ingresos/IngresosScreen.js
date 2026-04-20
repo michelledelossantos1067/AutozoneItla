@@ -20,7 +20,6 @@ export default function Ingresos({ route }) {
     return <Text style={s.error}>No se recibió el ID del vehículo</Text>;
   }
 
-  // 🔹 LISTAR INGRESOS
   const fetchIngresos = async (nextPage = 1) => {
     if (loading) return;
     if (!hasMore && nextPage !== 1) return;
@@ -29,10 +28,7 @@ export default function Ingresos({ route }) {
       setLoading(true);
 
       const { data } = await apiClient.get('/ingresos', {
-        params: {
-          vehiculo_id,
-          page: nextPage,
-        }
+        params: { vehiculo_id, page: nextPage }
       });
 
       const nuevos = data?.data?.ingresos || data?.data || [];
@@ -55,7 +51,6 @@ export default function Ingresos({ route }) {
     fetchIngresos(1);
   }, []);
 
-  // 🔹 GUARDAR
   const guardarIngreso = async () => {
     if (!monto) {
       alert("Debe ingresar el monto");
@@ -87,7 +82,6 @@ export default function Ingresos({ route }) {
   return (
     <View style={s.screen}>
 
-
       <Modal transparent visible={modalVisible} animationType="fade">
         <View style={s.centeredView}>
           <View style={s.modalView}>
@@ -99,11 +93,11 @@ export default function Ingresos({ route }) {
             <TextInput style={s.input} placeholder="Concepto" value={concepto} onChangeText={setConcepto} />
 
             <View style={s.modalActions}>
-              <TouchableOpacity style={[s.botonAccion, { backgroundColor: '#2E86C1' }]} onPress={guardarIngreso}>
+              <TouchableOpacity style={[s.botonAccion, s.btnPrimary]} onPress={guardarIngreso}>
                 <Text style={s.textWhite}>Guardar</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={[s.botonAccion, { backgroundColor: '#E74C3C' }]} onPress={() => setModalVisible(false)}>
+              <TouchableOpacity style={[s.botonAccion, s.btnDanger]} onPress={() => setModalVisible(false)}>
                 <Text style={s.textWhite}>Cancelar</Text>
               </TouchableOpacity>
             </View>
@@ -111,7 +105,6 @@ export default function Ingresos({ route }) {
           </View>
         </View>
       </Modal>
-
 
       <View style={s.mainCard}>
         <Text style={s.headerTitle}>Ingresos</Text>
@@ -148,57 +141,150 @@ export default function Ingresos({ route }) {
   );
 }
 
-
 const s = StyleSheet.create({
   screen: {
-    flex: 1, backgroundColor: COLORS.background, padding: 10, alignItems: 'center', justifyContent: 'center'
+    flex: 1,
+    backgroundColor: COLORS.background,
+    padding: 16
   },
-  error: { textAlign: 'center', marginTop: 20, color: COLORS.danger },
-  goma: { padding: 15, borderRadius: 6, marginBottom: 10 },
-  gomaText: { color: COLORS.textLight, fontWeight: '600' },
-  gomaSub: { color: COLORS.textMuted, fontSize: FONTS.sizes.sm },
-  modal: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: COLORS.background },
-  modalTitle: { fontSize: FONTS.sizes.md, fontWeight: '700', marginBottom: 10 },
-  input: { borderWidth: 1, borderColor: COLORS.border, padding: 10, borderRadius: 6, marginBottom: 10 },
-  btn: { backgroundColor: COLORS.primary, padding: 12, borderRadius: 6, marginBottom: 10 },
-  btnText: { color: COLORS.textLight, textAlign: 'center', fontWeight: '600' },
-  closeBtn: { backgroundColor: COLORS.danger, padding: 12, borderRadius: 6 },
-  closeText: { color: COLORS.textLight, textAlign: 'center', fontWeight: '600' },
-  screen: { flex: 1, backgroundColor: COLORS.background, alignItems: 'center', justifyContent: 'center' },
-  mainCard: { width: 340, backgroundColor: 'white', elevation: 15, borderRadius: 25, overflow: 'hidden', alignItems: 'center' },
-  headerTitle: { fontSize: 24, marginTop: 20, fontWeight: '700', color: COLORS.textPrimary },
-  searchSection: { padding: 20, width: '100%', alignItems: 'center' },
-  inputBuscador: { borderWidth: 1, borderColor: '#DDD', width: '100%', borderRadius: 10, padding: 10, textAlign: 'center', marginBottom: 15, color: COLORS.textPrimary },
-  botonBuscar: { backgroundColor: '#2E86C1', width: '100%', height: 45, marginBottom: 10, borderRadius: 12, alignItems: 'center', justifyContent: 'center', elevation: 3 },
-  textWhite: { color: 'white', fontWeight: '600', fontSize: 15 },
-  list: { maxHeight: 400, width: '100%', borderTopWidth: 1, borderColor: '#EEE' },
-  cardItem: { backgroundColor: 'white', marginHorizontal: 15, marginVertical: 8, padding: 15, borderRadius: 15, elevation: 5 },
-  cardRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  cardContent: { flex: 1 },
-  cardLabel: { fontWeight: 'bold', color: '#E74C3C', fontSize: 12, marginBottom: 2 },
-  cardValue: { color: '#333', fontWeight: '400' },
-  cardImage: { width: 80, height: 80, borderRadius: 10, backgroundColor: '#F5F5F5' },
-  placeholderImage: { justifyContent: 'center', alignItems: 'center', borderStyle: 'dashed', borderWidth: 1, borderColor: '#CCC' },
-  centeredView: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.6)' },
-  modalView: { width: '85%', backgroundColor: 'white', borderRadius: 25, padding: 25, alignItems: 'center', elevation: 20 },
-  modalTitle: { fontSize: 20, fontWeight: '700', marginBottom: 20, color: COLORS.primary },
-  input: { borderBottomWidth: 1, borderBottomColor: '#CCC', width: '100%', marginBottom: 15, padding: 8 },
-  previewContainer: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 10 },
-  miniPreview: { width: 50, height: 50, margin: 2, borderRadius: 5 },
-  botonSecundario: { padding: 10, marginBottom: 20 },
-  textBotonSecundario: { color: '#2E86C1', fontWeight: 'bold' },
-  modalActions: { flexDirection: 'row', width: '100%', justifyContent: 'space-between' },
-  botonAccion: { flex: 0.48, height: 45, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
-  emptyText: { textAlign: 'center', marginTop: 20, color: COLORS.textMuted },
-  filtroBtn: {
-    backgroundColor: '#BDC3C7',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    marginRight: 6,
+
+  error: {
+    textAlign: 'center',
+    marginTop: 20,
+    color: COLORS.danger
+  },
+
+  mainCard: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 }
+  },
+
+  headerTitle: {
+    fontSize: FONTS.sizes.lg,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+    textAlign: 'center',
+    marginBottom: 10
+  },
+
+  searchSection: {
+    marginBottom: 10
+  },
+
+  botonBuscar: {
+    backgroundColor: COLORS.primary,
+    height: 45,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 2
+  },
+
+  textWhite: {
+    color: '#fff',
+    fontWeight: '600'
+  },
+
+  list: {
+    marginTop: 10
+  },
+
+  cardItem: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 10,
+
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 }
+  },
+
+  cardLabel: {
+    fontWeight: '700',
+    color: COLORS.primary,
+    fontSize: 12,
+    marginBottom: 2
+  },
+
+  cardValue: {
+    color: COLORS.textPrimary
+  },
+
+  emptyText: {
+    textAlign: 'center',
+    marginTop: 20,
+    color: COLORS.textMuted
+  },
+
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.4)'
+  },
+
+  modalView: {
+    width: '90%',
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 }
+  },
+
+  modalTitle: {
+    fontSize: FONTS.sizes.md,
+    fontWeight: '700',
+    textAlign: 'center',
     marginBottom: 15,
+    color: COLORS.textPrimary
   },
-  filtroActivo: {
-    backgroundColor: '#2E86C1'
+
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    marginBottom: 12,
+    backgroundColor: '#fafafa',
+    color: COLORS.textPrimary
   },
+
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 10
+  },
+
+  botonAccion: {
+    flex: 0.48,
+    height: 45,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+
+  btnPrimary: {
+    backgroundColor: COLORS.primary
+  },
+
+  btnDanger: {
+    backgroundColor: COLORS.danger
+  }
 });

@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import apiClient from '../../services/apiClient'
-import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, Image } from 'react-native';
+import apiClient from '../../services/apiClient';
+import {
+  ScrollView,
+  View,
+  Text,
+  StyleSheet,
+  Image
+} from 'react-native';
 import { COLORS, FONTS } from '../../core/theme';
 
 export default function DetalleMantenimientoScreen({ route }) {
@@ -8,19 +14,13 @@ export default function DetalleMantenimientoScreen({ route }) {
   const [mantenimiento, setMantenimiento] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const [mantenimiento_id, setMantenimiento_Id] = useState('')
-
   const obtenerDetalle = async () => {
     if (loading) return;
 
     try {
-
       setLoading(true);
 
       const response = await apiClient.get(`/mantenimientos/detalle?id=${id}`);
-
-      console.log(response.data);
-
       setMantenimiento(response.data.data);
 
     } catch (error) {
@@ -28,108 +28,152 @@ export default function DetalleMantenimientoScreen({ route }) {
     } finally {
       setLoading(false);
     }
-  }
-
-  const guardarFoto = async () => {
-    if (loading) return;
-
-    try {
-
-      setLoading(true);
-
-      const data = {
-        mantenimiento_id: Number(mantenimiento_id),
-      };
-
-      const response = await apiClient.post('/mantenimientos/fotos',
-        new URLSearchParams({
-          datax: JSON.stringify(data)
-        }),
-        {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          }
-        }
-      );
-
-      console.log(response.data);
-
-      setLista(response.data.data);
-
-    } catch (error) {
-      console.log(error.response?.data || error.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
+  };
 
   useEffect(() => {
     obtenerDetalle();
   }, []);
 
-  if (!mantenimiento) return <Text>Cargando...</Text>;
+  if (!mantenimiento) {
+    return (
+      <View style={s.center}>
+        <Text style={s.loading}>Cargando detalle...</Text>
+      </View>
+    );
+  }
 
   return (
-    <View style={s.screen}>
+    <ScrollView contentContainerStyle={s.container}>
+      <View style={s.card}>
 
-      <View style={{
-        width: 360,
-        height: '95%',
-        backgroundColor: 'white',
-        borderWidth: 1.5,
-        marginTop: 20,
-        marginBottom: 20,
-        padding: 20,
-        gap: 15
-      }}>
-
+        {/* GALERÍA */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          style={{ marginTop: 10 }}
+          style={s.gallery}
         >
           {mantenimiento.fotos && mantenimiento.fotos.length > 0 ? (
             mantenimiento.fotos.map((foto, index) => (
-              <Image key={index} source={{ uri: foto }}
-                style={{
-                  width: 250,
-                  height: 200,
-                  marginRight: 10,
-                  borderRadius: 10
-                }}
+              <Image
+                key={index}
+                source={{ uri: foto }}
+                style={s.image}
                 resizeMode="cover"
               />
-            )) ) : (
-            <View style={{
-              width: 250,
-              height: 200,
-              justifyContent: 'center',
-              alignItems: 'center',
-              backgroundColor: '#eee',
-              borderRadius: 10
-            }}>
-              <Text>Sin imágenes</Text>
+            ))
+          ) : (
+            <View style={s.noImage}>
+              <Text style={s.noImageText}>Sin imágenes</Text>
             </View>
           )}
         </ScrollView>
 
-        <Text style={{ fontWeight: 'bold', fontSize: 20 }}>{mantenimiento.tipo}</Text>
+        {/* INFO */}
+        <Text style={s.title}>{mantenimiento.tipo}</Text>
 
-        <Text><Text style={{ fontWeight: 'bold' }}>Costos: </Text>{mantenimiento.costo}</Text>
+        <View style={s.infoBlock}>
+          <Text style={s.label}>Costo</Text>
+          <Text style={s.value}>RD$ {mantenimiento.costo}</Text>
+        </View>
 
-        <Text><Text style={{ fontWeight: 'bold' }}>Piezas: </Text>{mantenimiento.piezas}</Text>
+        <View style={s.infoBlock}>
+          <Text style={s.label}>Piezas</Text>
+          <Text style={s.value}>{mantenimiento.piezas || 'N/A'}</Text>
+        </View>
 
-        <Text><Text style={{ fontWeight: 'bold' }}>Fecha: </Text>{mantenimiento.fecha}</Text>
-
+        <View style={s.infoBlock}>
+          <Text style={s.label}>Fecha</Text>
+          <Text style={s.value}>{mantenimiento.fecha}</Text>
+        </View>
 
       </View>
-    </View >
+    </ScrollView>
   );
 }
 
 const s = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: COLORS.background, alignItems: 'center', justifyContent: 'center' },
-  title: { fontSize: FONTS.sizes.lg, fontWeight: '700', color: COLORS.textPrimary },
-  sub: { fontSize: FONTS.sizes.sm, color: COLORS.textMuted, marginTop: 8 },
+  container: {
+    padding: 20,
+    alignItems: 'center',
+  },
+
+  screen: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  loading: {
+    color: COLORS.textMuted,
+    fontSize: FONTS.sizes.md,
+  },
+
+  card: {
+    width: '100%',
+    maxWidth: 380,
+    backgroundColor: COLORS.card,
+    borderRadius: 20,
+    padding: 20,
+
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 5 },
+  },
+
+  gallery: {
+    marginBottom: 15,
+  },
+
+  image: {
+    width: 260,
+    height: 180,
+    borderRadius: 15,
+    marginRight: 10,
+  },
+
+  noImage: {
+    width: 260,
+    height: 180,
+    borderRadius: 15,
+    backgroundColor: COLORS.border,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  noImageText: {
+    color: COLORS.textMuted,
+  },
+
+  title: {
+    fontSize: FONTS.sizes.lg,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+    marginBottom: 15,
+  },
+
+  infoBlock: {
+    marginBottom: 12,
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: COLORS.background,
+  },
+
+  label: {
+    fontSize: FONTS.sizes.sm,
+    color: COLORS.textMuted,
+    marginBottom: 3,
+  },
+
+  value: {
+    fontSize: FONTS.sizes.md,
+    fontWeight: '600',
+    color: COLORS.textPrimary,
+  },
 });

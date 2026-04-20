@@ -88,15 +88,132 @@ export default function Catalogo({ navigation }) {
 }
 
 const s = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: COLORS.background, alignItems: 'center', justifyContent: 'center' },
-  container: { width: 350, height: '95%', backgroundColor: 'white', borderWidth: 1.5, marginTop: 20, padding: 20, alignItems: 'center' },
-  row: { flexDirection: 'row', justifyContent: 'center', marginBottom: 10 },
-  column: { gap: 5, alignItems: 'center' },
-  button: { backgroundColor: COLORS.primaryLight, width: 305, justifyContent: 'center', alignItems: 'center', borderRadius: 5, height: 40 },
-  sub: { fontSize: FONTS.sizes.sm, color: 'white' },
-  textinput: { color: 'black', borderWidth: 1, width: '50%', borderRadius: 3, textAlign: 'center' },
-  textinput2: { color: 'black', borderWidth: 1, width: 305, borderRadius: 3, textAlign: 'center' },
-  card: { borderWidth: 2, marginBottom: 20, padding: 15 },
-  image: { width: '100%', height: 150 },
-  bold: { fontWeight: 'bold' }
+  screen: {
+    flex: 1,
+    backgroundColor: COLORS.background
+  },
+
+  container: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingTop: 20
+  },
+
+  title: {
+    fontSize: FONTS.sizes.lg,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+    marginBottom: 15,
+    textAlign: 'center'
+  },
+
+  // 🔍 filtros
+  filterSection: {
+    backgroundColor: "#fff",
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 15,
+
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 }
+  },
+
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10
+  },
+
+  // 🔤 inputs
+  textinput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    marginHorizontal: 3,
+    color: COLORS.textPrimary,
+    backgroundColor: "#fafafa"
+  },
+
+  textinput2: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    color: COLORS.textPrimary,
+    backgroundColor: "#fafafa"
+  },
+
+  // 🔘 botón
+  button: {
+    marginTop: 10,
+    backgroundColor: COLORS.primary,
+    borderRadius: 10,
+    height: 45,
+    justifyContent: 'center',
+    alignItems: 'center',
+
+    elevation: 2
+  },
+
+  sub: {
+    fontSize: FONTS.sizes.md,
+    color: "#fff",
+    fontWeight: '600'
+  },
+
+  // 🚗 cards
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    marginBottom: 15,
+    overflow: "hidden",
+
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 }
+  },
+
+  image: {
+    width: '100%',
+    height: 160
+  },
+
+  cardInfo: {
+    padding: 12
+  },
+
+  cardTitle: {
+    fontSize: FONTS.sizes.md,
+    fontWeight: '700',
+    color: COLORS.textPrimary
+  },
+
+  cardPrice: {
+    fontSize: FONTS.sizes.md,
+    color: COLORS.primary,
+    fontWeight: '700',
+    marginTop: 5
+  },
+
+  cardDesc: {
+    fontSize: FONTS.sizes.sm,
+    color: COLORS.textMuted,
+    marginTop: 5
+  },
+
+  cardYear: {
+    fontSize: FONTS.sizes.sm,
+    color: COLORS.textMuted,
+    marginTop: 5
+  }
 });

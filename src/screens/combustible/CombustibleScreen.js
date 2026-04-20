@@ -16,7 +16,6 @@ export default function CombustibleScreen({ route }) {
   const [unidad, setUnidad] = useState('');
   const [monto, setMonto] = useState('');
 
-
   const obtenerCombustibles = async () => {
     if (loading) return;
 
@@ -31,7 +30,6 @@ export default function CombustibleScreen({ route }) {
       });
 
       setLista(response.data?.data || []);
-
     } catch (error) {
       console.log(error.response?.data || error.message);
     } finally {
@@ -56,7 +54,8 @@ export default function CombustibleScreen({ route }) {
         monto: Number(monto),
       };
 
-      const response = await apiClient.post('/combustibles',
+      await apiClient.post(
+        '/combustibles',
         new URLSearchParams({
           datax: JSON.stringify(data)
         }),
@@ -74,7 +73,6 @@ export default function CombustibleScreen({ route }) {
       setMonto('');
 
       obtenerCombustibles();
-
     } catch (error) {
       console.log(error.response?.data || error.message);
     } finally {
@@ -88,28 +86,26 @@ export default function CombustibleScreen({ route }) {
 
   return (
     <View style={s.screen}>
-
       <Modal transparent visible={visible} animationType="fade">
         <View style={s.centeredView}>
           <View style={s.modalView}>
-            <Text style={s.title}>Registrar Combustible</Text>
+            <Text style={s.modalTitle}>Registrar Combustible</Text>
 
             <TextInput placeholder="Tipo (Gasolina, Gasoil)" value={tipo} onChangeText={setTipo} style={s.input} />
             <TextInput placeholder="Cantidad" value={cantidad} onChangeText={setCantidad} keyboardType="numeric" style={s.input} />
             <TextInput placeholder="Unidad (Litros)" value={unidad} onChangeText={setUnidad} style={s.input} />
             <TextInput placeholder="Monto" value={monto} onChangeText={setMonto} keyboardType="numeric" style={s.input} />
 
-            <TouchableOpacity style={s.btn} onPress={guardarCombustible}>
+            <TouchableOpacity style={[s.btn, s.btnPrimary]} onPress={guardarCombustible}>
               <Text style={s.btnText}>Guardar</Text>
             </TouchableOpacity>
 
             <TouchableOpacity onPress={() => setVisible(false)}>
-              <Text>Cerrar</Text>
+              <Text style={s.closeText}>Cerrar</Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
-
 
       <View style={s.card}>
         <Text style={s.title}>Combustible</Text>
@@ -125,19 +121,28 @@ export default function CombustibleScreen({ route }) {
           <Text style={s.btnText}>+ Agregar Combustible</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={[s.btn, { backgroundColor: COLORS.primary }]} onPress={obtenerCombustibles}>
-          {loading ? <ActivityIndicator color="white" /> : <Text style={s.btnText}>Buscar</Text>}
+        <TouchableOpacity style={[s.btn, s.btnPrimary]} onPress={obtenerCombustibles}>
+          {loading ? <ActivityIndicator color="#fff" /> : <Text style={s.btnText}>Buscar</Text>}
         </TouchableOpacity>
 
         <FlatList
           data={lista}
           keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={{ paddingBottom: 20 }}
           renderItem={({ item }) => (
             <View style={s.item}>
-              <Text><Text style={s.bold}>Tipo: </Text>{item.tipo}</Text>
-              <Text><Text style={s.bold}>Cantidad: </Text>{item.cantidad} {item.unidad}</Text>
-              <Text><Text style={s.bold}>Monto: </Text>{item.monto}</Text>
-              <Text><Text style={s.bold}>Fecha: </Text>{item.fecha}</Text>
+              <Text style={s.itemText}>
+                <Text style={s.bold}>Tipo: </Text>{item.tipo}
+              </Text>
+              <Text style={s.itemText}>
+                <Text style={s.bold}>Cantidad: </Text>{item.cantidad} {item.unidad}
+              </Text>
+              <Text style={s.itemText}>
+                <Text style={s.bold}>Monto: </Text>{item.monto}
+              </Text>
+              <Text style={s.itemText}>
+                <Text style={s.bold}>Fecha: </Text>{item.fecha}
+              </Text>
             </View>
           )}
         />
@@ -147,26 +152,114 @@ export default function CombustibleScreen({ route }) {
 }
 
 const s = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: COLORS.background, alignItems: 'center', justifyContent: 'center' },
-  title: { fontSize: FONTS.sizes.lg, fontWeight: '700', color: COLORS.textPrimary },
-  sub: { fontSize: FONTS.sizes.sm, color: COLORS.textMuted, marginTop: 8 },
-  TouchableOpacity: { backgroundColor: COLORS.primaryLight, justifyContent: 'center', alignItems: 'center', marginBottom: 10, width: '50%', borderRadius: 15, height: 40 },
+  screen: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+    padding: 16
+  },
+
+  card: {
+    flex: 1,
+    backgroundColor: "#fff",
+    borderRadius: 14,
+    padding: 16,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 }
+  },
+
+  title: {
+    fontSize: FONTS.sizes.lg,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+    marginBottom: 12,
+    textAlign: 'center'
+  },
+
+  input: {
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    marginBottom: 10,
+    color: COLORS.textPrimary,
+    backgroundColor: "#fafafa"
+  },
+
+  btn: {
+    backgroundColor: COLORS.primaryLight,
+    borderRadius: 10,
+    height: 45,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 5,
+    elevation: 2
+  },
+
+  btnPrimary: {
+    backgroundColor: COLORS.primary
+  },
+
+  btnText: {
+    color: "#fff",
+    fontSize: FONTS.sizes.md,
+    fontWeight: '600'
+  },
+
+  item: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 10,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    shadowOffset: { width: 0, height: 1 }
+  },
+
+  itemText: {
+    fontSize: FONTS.sizes.sm,
+    color: COLORS.textPrimary,
+    marginBottom: 3
+  },
+
+  bold: {
+    fontWeight: '700'
+  },
+
   centeredView: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    backgroundColor: 'rgba(0,0,0,0.3)'
   },
+
   modalView: {
-    margin: 20,
+    width: '90%',
     backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 35,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
+    borderRadius: 16,
+    padding: 20,
     elevation: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 }
   },
+
+  modalTitle: {
+    fontSize: FONTS.sizes.md,
+    fontWeight: '700',
+    marginBottom: 12,
+    textAlign: 'center'
+  },
+
+  closeText: {
+    marginTop: 10,
+    color: COLORS.textMuted,
+    textAlign: 'center'
+  }
 });

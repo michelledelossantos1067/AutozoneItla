@@ -207,30 +207,195 @@ export default function MantenimientoScreen({ route, navigation }) {
 }
 
 const s = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: COLORS.background, alignItems: 'center', justifyContent: 'center' },
-  mainCard: { width: 340, backgroundColor: 'white', elevation: 15, borderRadius: 25, overflow: 'hidden', alignItems: 'center' },
-  headerTitle: { fontSize: 24, marginTop: 20, fontWeight: '700', color: COLORS.textPrimary },
-  searchSection: { padding: 20, width: '100%', alignItems: 'center' },
-  inputBuscador: { borderWidth: 1, borderColor: '#DDD', width: '100%', borderRadius: 10, padding: 10, textAlign: 'center', marginBottom: 15, color: COLORS.textPrimary },
-  botonBuscar: { backgroundColor: '#2E86C1', width: '100%', height: 45, marginBottom: 10, borderRadius: 12, alignItems: 'center', justifyContent: 'center', elevation: 3 },
-  textWhite: { color: 'white', fontWeight: '600', fontSize: 15 },
-  list: { maxHeight: 400, width: '100%', borderTopWidth: 1, borderColor: '#EEE' },
-  cardItem: { backgroundColor: 'white', marginHorizontal: 15, marginVertical: 8, padding: 15, borderRadius: 15, elevation: 5 },
-  cardRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  cardContent: { flex: 1 },
-  cardLabel: { fontWeight: 'bold', color: '#E74C3C', fontSize: 12, marginBottom: 2 },
-  cardValue: { color: '#333', fontWeight: '400' },
-  cardImage: { width: 80, height: 80, borderRadius: 10, backgroundColor: '#F5F5F5' },
-  placeholderImage: { justifyContent: 'center', alignItems: 'center', borderStyle: 'dashed', borderWidth: 1, borderColor: '#CCC' },
-  centeredView: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.6)' },
-  modalView: { width: '85%', backgroundColor: 'white', borderRadius: 25, padding: 25, alignItems: 'center', elevation: 20 },
-  modalTitle: { fontSize: 20, fontWeight: '700', marginBottom: 20, color: COLORS.primary },
-  input: { borderBottomWidth: 1, borderBottomColor: '#CCC', width: '100%', marginBottom: 15, padding: 8 },
-  previewContainer: { flexDirection: 'row', flexWrap: 'wrap', marginBottom: 10 },
-  miniPreview: { width: 50, height: 50, margin: 2, borderRadius: 5 },
-  botonSecundario: { padding: 10, marginBottom: 20 },
-  textBotonSecundario: { color: '#2E86C1', fontWeight: 'bold' },
-  modalActions: { flexDirection: 'row', width: '100%', justifyContent: 'space-between' },
-  botonAccion: { flex: 0.48, height: 45, borderRadius: 10, justifyContent: 'center', alignItems: 'center' },
-  emptyText: { textAlign: 'center', marginTop: 20, color: COLORS.textMuted }
+  screen: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10
+  },
+
+  mainCard: {
+    width: 350,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    elevation: 8,
+    overflow: 'hidden',
+    alignItems: 'center'
+  },
+
+  headerTitle: {
+    fontSize: 22,
+    marginTop: 20,
+    fontWeight: '700',
+    color: COLORS.textPrimary
+  },
+
+  searchSection: {
+    padding: 20,
+    width: '100%',
+    alignItems: 'center'
+  },
+
+  inputBuscador: {
+    borderWidth: 1,
+    borderColor: '#DDD',
+    width: '100%',
+    borderRadius: 12,
+    padding: 10,
+    textAlign: 'center',
+    marginBottom: 15,
+    color: COLORS.textPrimary,
+    backgroundColor: '#FAFAFA'
+  },
+
+  botonBuscar: {
+    backgroundColor: '#2E86C1',
+    width: '100%',
+    height: 45,
+    marginBottom: 10,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 3
+  },
+
+  textWhite: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 14
+  },
+
+  list: {
+    maxHeight: 420,
+    width: '100%',
+    borderTopWidth: 1,
+    borderColor: '#EEE'
+  },
+
+  cardItem: {
+    backgroundColor: 'white',
+    marginHorizontal: 15,
+    marginVertical: 8,
+    padding: 15,
+    borderRadius: 15,
+    elevation: 4
+  },
+
+  cardRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+
+  cardContent: {
+    flex: 1,
+    paddingRight: 10
+  },
+
+  cardLabel: {
+    fontWeight: '700',
+    color: COLORS.primary,
+    fontSize: 12,
+    marginBottom: 3
+  },
+
+  cardValue: {
+    color: '#333',
+    fontWeight: '400'
+  },
+
+  cardImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 12,
+    backgroundColor: '#EEE'
+  },
+
+  placeholderImage: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderStyle: 'dashed',
+    borderWidth: 1,
+    borderColor: '#CCC'
+  },
+
+  emptyText: {
+    textAlign: 'center',
+    marginTop: 20,
+    color: COLORS.textMuted
+  },
+
+  centeredView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)'
+  },
+
+  modalView: {
+    width: '90%',
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    alignItems: 'center',
+    elevation: 10
+  },
+
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 15,
+    color: COLORS.primary
+  },
+
+  input: {
+    width: '100%',
+    borderBottomWidth: 1,
+    borderBottomColor: '#CCC',
+    marginBottom: 15,
+    paddingVertical: 8,
+    color: COLORS.textPrimary
+  },
+
+  previewContainer: {
+    width: '100%',
+    marginBottom: 10
+  },
+
+  previewGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8
+  },
+
+  previewImage: {
+    width: 90,
+    height: 90,
+    borderRadius: 10
+  },
+
+  botonSecundario: {
+    padding: 10,
+    marginBottom: 15
+  },
+
+  textBotonSecundario: {
+    color: COLORS.primary,
+    fontWeight: '600'
+  },
+
+  modalActions: {
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-between'
+  },
+
+  botonAccion: {
+    flex: 0.48,
+    height: 45,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center'
+  }
 });
