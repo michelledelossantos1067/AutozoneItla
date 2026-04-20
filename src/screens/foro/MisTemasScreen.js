@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { useAuth } from '../../store/AuthContext';
 import apiClient from '../../services/apiClient';
 import { fromJson } from '../../models/foroTema';
 import { COLORS, FONTS, SPACING } from '../../core/theme';
 import { formatDate } from '../../utils/format';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function MisTemasScreen({ navigation }) {
   const { isLoggedIn } = useAuth();
@@ -20,9 +21,14 @@ export default function MisTemasScreen({ navigation }) {
       });
 
       const newTemas = (data.data || []).map(fromJson);
-      setTemas(pageNum === 1 ? newTemas : [...temas, ...newTemas]);
+
+      setTemas(prev =>
+        pageNum === 1 ? newTemas : [...prev, ...newTemas]
+      );
+
       setPage(pageNum);
       setHasMore(newTemas.length === 20);
+
     } catch (err) {
       console.error('Error cargando mis temas:', err.response?.data || err.message);
     } finally {
@@ -30,13 +36,16 @@ export default function MisTemasScreen({ navigation }) {
     }
   };
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      fetchMisTemas();
-    } else {
-      setLoading(false);
-    }
-  }, [isLoggedIn]);
+  useFocusEffect(
+    useCallback(() => {
+      if (isLoggedIn) {
+        setLoading(true);
+        fetchMisTemas(1);
+      } else {
+        setLoading(false);
+      }
+    }, [isLoggedIn])
+  );
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
@@ -47,12 +56,19 @@ export default function MisTemasScreen({ navigation }) {
         <Text style={s.title}>{item.titulo}</Text>
         <Text style={s.date}>{formatDate(item.fecha)}</Text>
       </View>
-      <Text style={s.description} numberOfLines={2}>{item.descripcion}</Text>
+
+      <Text style={s.description} numberOfLines={2}>
+        {item.descripcion}
+      </Text>
+
       <View style={s.footer}>
         {item.vehiculoNombre && (
-          <Text style={s.vehicle}>Vehículo: {item.vehiculoNombre}</Text>
+          <Text style={s.vehicle}>{item.vehiculoNombre}</Text>
         )}
-        <Text style={s.responses}>{item.cantidadRespuestas} respuesta{item.cantidadRespuestas !== 1 ? 's' : ''}</Text>
+
+        <Text style={s.responses}>
+          {item.cantidadRespuestas} resp.
+        </Text>
       </View>
     </TouchableOpacity>
   );
@@ -60,7 +76,7 @@ export default function MisTemasScreen({ navigation }) {
   if (!isLoggedIn) {
     return (
       <View style={s.center}>
-        <Text style={s.empty}>Debes iniciar sesión para ver tu historial de temas.</Text>
+        <Text style={s.empty}>Debes iniciar sesión para ver tus temas.</Text>
         <TouchableOpacity
           style={s.loginButton}
           onPress={() => navigation.navigate('Auth', { screen: 'Login' })}
@@ -99,6 +115,7 @@ export default function MisTemasScreen({ navigation }) {
           </View>
         }
       />
+
       <TouchableOpacity
         style={s.fab}
         onPress={() => navigation.navigate('CrearTema')}
@@ -110,56 +127,119 @@ export default function MisTemasScreen({ navigation }) {
 }
 
 const s = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: COLORS.background },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  screen: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+    paddingHorizontal: SPACING.sm,
+  },
+
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SPACING.lg,
+  },
+
   card: {
     backgroundColor: COLORS.surface,
-    margin: SPACING.sm,
+    marginVertical: 8,
     padding: SPACING.md,
-    borderRadius: 8,
+    borderRadius: 16,
+    elevation: 6,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
   },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: SPACING.xs },
-  title: { fontSize: FONTS.sizes.md, fontWeight: '600', color: COLORS.textPrimary, flex: 1 },
-  date: { fontSize: FONTS.sizes.sm, color: COLORS.textMuted },
-  description: { fontSize: FONTS.sizes.sm, color: COLORS.textSecondary, marginBottom: SPACING.sm },
-  footer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  vehicle: { fontSize: FONTS.sizes.sm, color: COLORS.primary, flex: 1 },
-  responses: { fontSize: FONTS.sizes.sm, color: COLORS.textMuted, flex: 1, textAlign: 'right' },
-  empty: { fontSize: FONTS.sizes.md, color: COLORS.textMuted, marginBottom: SPACING.md },
+
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+
+  title: {
+    fontSize: FONTS.sizes.md,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+    flex: 1,
+  },
+
+  date: {
+    fontSize: 11,
+    color: COLORS.textMuted,
+  },
+
+  description: {
+    fontSize: FONTS.sizes.sm,
+    color: COLORS.textSecondary,
+    marginBottom: 10,
+  },
+
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+
+  vehicle: {
+    color: COLORS.primary,
+    fontWeight: '600',
+  },
+
+  responses: {
+    backgroundColor: COLORS.primary,
+    color: COLORS.surface,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+    fontSize: 12,
+  },
+
+  empty: {
+    color: COLORS.textMuted,
+    marginBottom: 15,
+  },
+
   createButton: {
     backgroundColor: COLORS.primary,
     paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.sm,
-    borderRadius: 8,
+    paddingVertical: 10,
+    borderRadius: 12,
   },
-  createButtonText: { color: COLORS.surface, fontSize: FONTS.sizes.sm, fontWeight: '600' },
+
+  createButtonText: {
+    color: COLORS.surface,
+    fontWeight: '600',
+  },
+
   fab: {
     position: 'absolute',
-    bottom: SPACING.lg,
-    right: SPACING.lg,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
+    bottom: 20,
+    right: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     backgroundColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
+    elevation: 8,
   },
-  fabText: { fontSize: FONTS.sizes.lg, color: COLORS.surface, fontWeight: 'bold' },
+
+  fabText: {
+    fontSize: 28,
+    color: COLORS.surface,
+    fontWeight: 'bold',
+  },
+
   loginButton: {
     backgroundColor: COLORS.primary,
     paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.sm,
-    borderRadius: 8,
+    paddingVertical: 10,
+    borderRadius: 12,
   },
-  loginButtonText: { color: COLORS.surface, fontSize: FONTS.sizes.sm, fontWeight: '600' },
+
+  loginButtonText: {
+    color: COLORS.surface,
+    fontWeight: '600',
+  },
 });

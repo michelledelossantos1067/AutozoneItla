@@ -1,13 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator
+} from 'react-native';
 import apiClient from '../../services/apiClient';
 import { useAuth } from '../../store/AuthContext';
 import { fromJson } from '../../models/foroTema';
 import { COLORS, FONTS, SPACING } from '../../core/theme';
 import { formatDate } from '../../utils/format';
 
-export default function ForoScreen({ navigation, route }) {
+export default function ForoScreen({ navigation }) {
   const { isLoggedIn } = useAuth();
+
   const [temas, setTemas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -15,18 +23,18 @@ export default function ForoScreen({ navigation, route }) {
 
   const fetchTemas = async (pageNum = 1) => {
     try {
-      console.log('Recargando temas...', pageNum);
-
       const endpoint = isLoggedIn ? '/foro/temas' : '/publico/foro';
 
       const { data } = await apiClient.get(endpoint, {
         params: { page: pageNum, limit: 20 }
       });
+
       const newTemas = (data.data || []).map(fromJson);
-      console.log('Temas cargados:', newTemas.length, newTemas.map(t => ({ id: t.id, titulo: t.titulo, respuestas: t.cantidadRespuestas })));
+
       setTemas(pageNum === 1 ? newTemas : [...temas, ...newTemas]);
       setPage(pageNum);
       setHasMore(newTemas.length === 20);
+
     } catch (err) {
       console.error('Error cargando temas:', err.response?.data || err.message);
     } finally {
@@ -38,14 +46,10 @@ export default function ForoScreen({ navigation, route }) {
     fetchTemas(1);
   }, []);
 
-  // Refresh list every time this screen comes into focus
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      console.log('ForoScreen enfocado - recargando temas');
-      setPage(1);
       fetchTemas(1);
     });
-
     return unsubscribe;
   }, [navigation]);
 
@@ -58,13 +62,21 @@ export default function ForoScreen({ navigation, route }) {
         <Text style={s.title}>{item.titulo}</Text>
         <Text style={s.date}>{formatDate(item.fecha)}</Text>
       </View>
-      <Text style={s.description} numberOfLines={2}>{item.descripcion}</Text>
+
+      <Text style={s.description} numberOfLines={2}>
+        {item.descripcion}
+      </Text>
+
       <View style={s.footer}>
-        <Text style={s.author}>Por: {item.autor}</Text>
+        <Text style={s.author}>👤 {item.autor}</Text>
+
         {item.vehiculoNombre && (
-          <Text style={s.vehicle}>Vehículo: {item.vehiculoNombre}</Text>
+          <Text style={s.vehicle}>🚗 {item.vehiculoNombre}</Text>
         )}
-        <Text style={s.responses}>{item.cantidadRespuestas} respuesta{item.cantidadRespuestas !== 1 ? 's' : ''}</Text>
+
+        <Text style={s.responses}>
+          💬 {item.cantidadRespuestas}
+        </Text>
       </View>
     </TouchableOpacity>
   );
@@ -79,21 +91,42 @@ export default function ForoScreen({ navigation, route }) {
 
   return (
     <View style={s.screen}>
+
+      {/* 🔹 HEADER CON BOTÓN */}
+      <View style={s.topBar}>
+        <Text style={s.screenTitle}>Foro</Text>
+
+        {isLoggedIn && (
+          <TouchableOpacity
+            style={s.myTopicsBtn}
+            onPress={() => navigation.navigate('MisTemas')}
+          >
+            <Text style={s.myTopicsText}>Mis temas</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
       <FlatList
         data={temas}
         keyExtractor={(item) => item.id.toString()}
         renderItem={renderItem}
         onEndReached={() => hasMore && fetchTemas(page + 1)}
         onEndReachedThreshold={0.5}
+        contentContainerStyle={{ paddingBottom: 100 }}
         ListEmptyComponent={
           <View style={s.center}>
             <Text style={s.empty}>No hay temas disponibles</Text>
           </View>
         }
       />
+
+      {/* 🔹 LOGIN PROMPT */}
       {!isLoggedIn && (
         <View style={s.loginPrompt}>
-          <Text style={s.loginPromptText}>Inicia sesión para crear temas y responder.</Text>
+          <Text style={s.loginPromptText}>
+            Inicia sesión para crear temas y responder
+          </Text>
+
           <TouchableOpacity
             style={s.loginPromptButton}
             onPress={() => navigation.navigate('Auth', { screen: 'Login' })}
@@ -102,112 +135,169 @@ export default function ForoScreen({ navigation, route }) {
           </TouchableOpacity>
         </View>
       )}
+
+      {/* 🔹 FAB */}
       <TouchableOpacity
         style={s.fab}
-        onPress={() => isLoggedIn ? navigation.navigate('CrearTema') : navigation.navigate('Auth', { screen: 'Login' })}
+        onPress={() =>
+          isLoggedIn
+            ? navigation.navigate('CrearTema')
+            : navigation.navigate('Auth', { screen: 'Login' })
+        }
       >
         <Text style={s.fabText}>+</Text>
       </TouchableOpacity>
+
     </View>
   );
 }
 
 const s = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: COLORS.background },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  screen: {
+    flex: 1,
+    backgroundColor: COLORS.background
+  },
+
+  /* HEADER */
+  topBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: SPACING.sm
+  },
+
+  screenTitle: {
+    fontSize: FONTS.sizes.lg,
+    fontWeight: '700',
+    color: COLORS.textPrimary
+  },
+
+  myTopicsBtn: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: 6,
+    borderRadius: 20
+  },
+
+  myTopicsText: {
+    color: COLORS.surface,
+    fontSize: FONTS.sizes.sm,
+    fontWeight: '600'
+  },
+
+  /* LIST */
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+
   card: {
     backgroundColor: COLORS.surface,
-    margin: SPACING.sm,
+    marginHorizontal: SPACING.md,
+    marginVertical: SPACING.sm,
     padding: SPACING.md,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderRadius: 12,
+    elevation: 4
   },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: SPACING.xs },
-  title: { fontSize: FONTS.sizes.md, fontWeight: '600', color: COLORS.textPrimary, flex: 1 },
-  date: { fontSize: FONTS.sizes.sm, color: COLORS.textMuted },
-  description: { fontSize: FONTS.sizes.sm, color: COLORS.textSecondary, marginBottom: SPACING.sm },
-  footer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  author: { fontSize: FONTS.sizes.sm, color: COLORS.textMuted, flex: 1 },
-  vehicle: { fontSize: FONTS.sizes.sm, color: COLORS.primary, flex: 1, textAlign: 'center' },
-  responses: { fontSize: FONTS.sizes.sm, color: COLORS.textMuted, flex: 1, textAlign: 'right' },
-  empty: { fontSize: FONTS.sizes.md, color: COLORS.textMuted },
-  fab: {
-    position: 'absolute',
-    bottom: SPACING.lg,
-    right: SPACING.lg,
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: COLORS.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
+
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 6
   },
-  fabText: { fontSize: FONTS.sizes.lg, color: COLORS.surface, fontWeight: 'bold' },
-  loginPrompt: {
-    padding: SPACING.md,
-    marginHorizontal: SPACING.sm,
-    borderRadius: 8,
-    backgroundColor: COLORS.surface,
-    alignItems: 'center',
-    marginBottom: SPACING.sm,
+
+  title: {
+    fontSize: FONTS.sizes.md,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+    flex: 1,
+    marginRight: 10
   },
-  loginPromptText: {
+
+  date: {
+    fontSize: FONTS.sizes.sm,
+    color: COLORS.textMuted
+  },
+
+  description: {
     fontSize: FONTS.sizes.sm,
     color: COLORS.textSecondary,
-    textAlign: 'center',
-    marginBottom: SPACING.sm,
+    marginBottom: 10
   },
+
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+
+  author: {
+    fontSize: FONTS.sizes.sm,
+    color: COLORS.textMuted
+  },
+
+  vehicle: {
+    fontSize: FONTS.sizes.sm,
+    color: COLORS.primary
+  },
+
+  responses: {
+    fontSize: FONTS.sizes.sm,
+    color: COLORS.textMuted
+  },
+
+  empty: {
+    fontSize: FONTS.sizes.md,
+    color: COLORS.textMuted
+  },
+
+  /* LOGIN PROMPT */
+  loginPrompt: {
+    margin: SPACING.md,
+    padding: SPACING.md,
+    borderRadius: 12,
+    backgroundColor: COLORS.surface,
+    alignItems: 'center',
+    elevation: 3
+  },
+
+  loginPromptText: {
+    color: COLORS.textSecondary,
+    marginBottom: 10,
+    textAlign: 'center'
+  },
+
   loginPromptButton: {
     backgroundColor: COLORS.primary,
     paddingHorizontal: SPACING.lg,
-    paddingVertical: SPACING.sm,
-    borderRadius: 8,
+    paddingVertical: 10,
+    borderRadius: 8
   },
-  loginPromptButtonText: { color: COLORS.surface, fontSize: FONTS.sizes.sm, fontWeight: '600' },
-  guestPanel: {
-    flex: 1,
+
+  loginPromptButtonText: {
+    color: COLORS.surface,
+    fontWeight: '600'
+  },
+
+  /* FAB */
+  fab: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    marginHorizontal: SPACING.lg,
-    padding: SPACING.lg,
-    backgroundColor: COLORS.surface,
-    borderRadius: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    elevation: 6
   },
-  guestTitle: {
-    fontSize: FONTS.sizes.lg,
-    fontWeight: '700',
-    color: COLORS.textPrimary,
-    marginBottom: SPACING.sm,
-  },
-  guestText: {
-    fontSize: FONTS.sizes.sm,
-    color: COLORS.textSecondary,
-    textAlign: 'center',
-    marginBottom: SPACING.lg,
-  },
-  loginButton: {
-    backgroundColor: COLORS.primary,
-    paddingVertical: SPACING.md,
-    paddingHorizontal: SPACING.lg,
-    borderRadius: 10,
-  },
-  loginButtonText: {
+
+  fabText: {
+    fontSize: 24,
     color: COLORS.surface,
-    fontSize: FONTS.sizes.md,
-    fontWeight: '600',
-  },
+    fontWeight: 'bold'
+  }
 });
