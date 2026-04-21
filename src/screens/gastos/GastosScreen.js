@@ -25,7 +25,6 @@ export default function GastosScreen({ route }) {
     return <Text style={s.error}>No se recibió el ID del vehículo</Text>;
   }
 
-  // 🔹 CATEGORÍAS
   const fetchCategorias = async () => {
     try {
       const { data } = await apiClient.get('/gastos/categorias');
@@ -35,7 +34,6 @@ export default function GastosScreen({ route }) {
     }
   };
 
-  // 🔹 GASTOS
   const fetchGastos = async (nextPage = 1) => {
     if (loading) return;
     if (!hasMore && nextPage !== 1) return;
@@ -251,7 +249,6 @@ const s = StyleSheet.create({
     shadowRadius: 5,
     shadowOffset: { width: 0, height: 2 }
   },
-
   headerTitle: {
     fontSize: FONTS.sizes.lg,
     fontWeight: '700',

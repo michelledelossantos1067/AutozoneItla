@@ -194,7 +194,6 @@ const s = StyleSheet.create({
     marginVertical: 5,
     elevation: 2
   },
-
   btnPrimary: {
     backgroundColor: COLORS.primary
   },
