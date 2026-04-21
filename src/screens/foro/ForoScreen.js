@@ -222,7 +222,6 @@ const s = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center'
   },
-
   author: {
     fontSize: FONTS.sizes.sm,
     color: COLORS.textMuted

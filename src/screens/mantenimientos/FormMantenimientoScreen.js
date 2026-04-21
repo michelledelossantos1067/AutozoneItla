@@ -30,8 +30,6 @@ const s = StyleSheet.create({
     paddingVertical: 40,
     paddingHorizontal: 25,
     alignItems: 'center',
-
-    // sombra moderna
     elevation: 10,
     shadowColor: '#000',
     shadowOpacity: 0.1,

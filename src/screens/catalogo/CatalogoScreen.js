@@ -107,7 +107,6 @@ const s = StyleSheet.create({
     textAlign: 'center'
   },
 
-  // 🔍 filtros
   filterSection: {
     backgroundColor: "#fff",
     padding: 15,
@@ -127,7 +126,6 @@ const s = StyleSheet.create({
     marginBottom: 10
   },
 
-  // 🔤 inputs
   textinput: {
     flex: 1,
     borderWidth: 1,
@@ -151,7 +149,7 @@ const s = StyleSheet.create({
     backgroundColor: "#fafafa"
   },
 
-  // 🔘 botón
+
   button: {
     marginTop: 10,
     backgroundColor: COLORS.primary,
@@ -169,7 +167,6 @@ const s = StyleSheet.create({
     fontWeight: '600'
   },
 
-  // 🚗 cards
   card: {
     backgroundColor: "#fff",
     borderRadius: 12,
@@ -197,14 +194,12 @@ const s = StyleSheet.create({
     fontWeight: '700',
     color: COLORS.textPrimary
   },
-
   cardPrice: {
     fontSize: FONTS.sizes.md,
     color: COLORS.primary,
     fontWeight: '700',
     marginTop: 5
   },
-
   cardDesc: {
     fontSize: FONTS.sizes.sm,
     color: COLORS.textMuted,

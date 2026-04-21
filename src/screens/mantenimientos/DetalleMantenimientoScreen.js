@@ -61,7 +61,6 @@ export default function DetalleMantenimientoScreen({ route }) {
           )}
         </ScrollView>
 
-        {/* INFO */}
         <Text style={s.title}>{mantenimiento.tipo}</Text>
 
         <View style={s.infoBlock}>
